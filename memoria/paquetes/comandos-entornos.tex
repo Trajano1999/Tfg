@@ -1,0 +1,42 @@
+% DEFINICIÓN DE COMANDOS Y ENTORNOS
+
+% CONJUNTOS DE NÚMEROS
+  \newcommand{\N}{\mathbb{N}}     % Naturales
+  \newcommand{\R}{\mathbb{R}}     % Reales
+  \newcommand{\Z}{\mathbb{Z}}     % Enteros
+  \newcommand{\Q}{\mathbb{Q}}     % Racionales
+  \newcommand{\C}{\mathbb{C}}     % Complejos
+
+% Otros comandos propios
+  \newcommand{\mun}{\{\mu_n\}_{n \in \N_0}}                  				        % Sucesión de momentos
+  \newcommand{\pol}{\mathbb{P}[x]}                           				        % Polinomios
+  \newcommand{\funl}{\mathcal{L}}                            				        % Funcional de momentos L
+  \newcommand{\spol}{\{P_n\}_{n \in \N_0}}                   				        % Sucesión de polinomios
+  \newcommand{\pescalar}[2]{\langle #1, #2 \rangle}      				            % Producto escalar
+  \newcommand{\charlier}{\{C_n^{(\mu)}\}_{n \in \N_0}}       			   	      % SPOVD de Charlier
+  \newcommand{\meixner}{\{M_n^{(\beta, c)}\}_{n \in \N_0}}                 	% SPOVD de Meixner
+  \newcommand{\kraw}{\{K_n^{(p)}\}_{n \in \{0, \dots, N-1\}}}              	% SPOVD de Krawtchouk
+  \newcommand{\hahn}{\{h_n^{(\alpha, \beta)}\}_{n \in \{0, \dots, N-1\}}}	  % SPOVD de Hahn
+  \newcommand{\eprob}{(\Omega, \mathcal A, P)}              				        % Espacio de probabilidad
+  \newcommand{\pest}{\{X_t\}_{t \in T}}                     				        % Proceso estocástico
+  \newcommand{\markov}{\{X_t\}_{t \in \mathbb{N}_0}}        				        % Cadena de Markov
+  \newcommand{\pnm}{\{X_t\}_{t \in [0, \infty[}}            				        % Proceso de nacimiento y muerte
+
+% Para escalar matemáticas:
+  \newcommand{\scalemath}[2]{\scalebox{#1}{\mbox{\ensuremath{\displaystyle #2}}}}
+
+% TEOREMAS Y ENTORNOS ASOCIADOS
+
+  % \newtheorem{theorem}{Theorem}[chapter]
+  \newtheorem*{teorema*}{Teorema}
+  \newtheorem{teorema}{Teorema}[chapter]
+  \newtheorem{proposicion}[teorema]{Proposición}
+  \newtheorem{lema}[teorema]{Lema}
+  \newtheorem{corolario}[teorema]{Corolario}
+
+    \theoremstyle{definition}
+  \newtheorem{definicion}[teorema]{Definición}
+  \newtheorem{ejemplo}[teorema]{Ejemplo}
+
+    \theoremstyle{remark}
+  \newtheorem{observacion}[teorema]{Observación}

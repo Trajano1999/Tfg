@@ -1,2 +1,7 @@
 libros
 .vscode
+.ipynb_checkpoints
+
+# plantilla
+memoria/library.bib
+memoria/jupyter
