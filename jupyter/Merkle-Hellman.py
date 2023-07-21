@@ -9,7 +9,7 @@
 # recibido, comprobando en última instancia si coincide con el original.
 
 #------------------------------------------------------------------------------
-# Funciones
+# Funciones auxiliares
 #------------------------------------------------------------------------------ 
 
 # genera un vector ordenado donde cada posición es la cifra correspondiente del número recibido
@@ -103,17 +103,15 @@ if __name__ == '__main__':
     # comprobamos que el mensaje cumpla las condiciones
     if not mensajeCorrecto(x, ap):
         raise SystemExit
-
+    
     # generación del mensaje del usuario J cifrado 
     s = 0
-    for i in range(0, len(x)-1):
+    for i in range(0, len(a)):
         s += x[i] * a[i]
-
+    
     # aplicamos Merkle-Hellamn
     print()
-    print("Mensaje inicial : ", x)
+    print("Mensaje inicial  :", x)
     mensaje_final = merkleHellman(m, w, ap, s)
     print("Mensaje obtenido :", mensaje_final)
     print()
-
-# jjj Fallo cuando termina en 1
