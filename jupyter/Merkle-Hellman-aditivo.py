@@ -1,11 +1,11 @@
-# Criptosistema de Merkle-Hellman
+# Criptosistema de Merkle-Hellman (mochila con trampilla aditiva)
 
 ## En este programa estamos simulando el envío de información entre dos usuarios. 
 # Primero hacemos de usuario "diseñador" y por tanto, debemos elegir los valores iniciales m, w y ap, para generar nuestra clave pública a 
 # a partir de ap, para que otro usuario J nos envíe la información. Como también hacemos de usuario J, la información la almacenaremos en un
 # vector x y comprobaremos al final del programa si lo que queríamos enviar es igual al resultado obtenido por el criptosistema.
 # Como usuario J que somos, a partir de la clave pública a, vamos a generar S = a*x, que es el mensaje cifrado, y se lo haremos llegar al 
-# diseñador. Finalmente, siendo diseñador, y conociendo m, w, ap, a y s, aplicamos el criptosistema para obtener el mensaje que hemos 
+# diseñador. Finalmente, siendo diseñador, y conociendo m, w, ap y s, aplicamos el criptosistema para obtener el mensaje que hemos 
 # recibido, comprobando en última instancia si coincide con el original.
 
 #------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ def generacionA(ap, w, m):
     return a
 
 # aplica el criptosistema de Merkle-Hellman
-def merkleHellman(m, w, ap, s):
+def merkleHellmanAditivo(m, w, ap, s):
     res = []
     
     # cálculo del inverso modular de w módulo m, esto es, el inverso de w módulo m
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     if not mensajeCorrecto(x, ap):
         raise SystemExit
     
-    # generación del mensaje del usuario J cifrado 
+    # generación del mensaje S del usuario J cifrado 
     s = 0
     for i in range(0, len(a)):
         s += x[i] * a[i]
@@ -112,6 +112,6 @@ if __name__ == '__main__':
     # aplicamos Merkle-Hellamn
     print()
     print("Mensaje inicial  :", x)
-    mensaje_final = merkleHellman(m, w, ap, s)
+    mensaje_final = merkleHellmanAditivo(m, w, ap, s)
     print("Mensaje obtenido :", mensaje_final)
     print()
