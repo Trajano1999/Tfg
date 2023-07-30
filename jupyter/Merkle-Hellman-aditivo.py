@@ -11,7 +11,8 @@
 
 import random
 
-# jjj
+# jjj comprueba si una sucesión es supercreciente o no
+# v : vector int (sucesión)
 def esSC(v):
     s = 0
     for i in range(0, len(v)-1):
