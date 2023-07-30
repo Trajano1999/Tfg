@@ -11,16 +11,6 @@
 
 import random
 
-# jjj comprueba si una sucesión es supercreciente o no
-# v : vector int (sucesión)
-def esSC(v):
-    s = 0
-    for i in range(0, len(v)-1):
-        s += v[i]
-        if(s >= v[i+1]):
-            return False
-    return True
-
 #------------------------------------------------------------------------------
 # Funciones auxiliares
 #------------------------------------------------------------------------------ 
@@ -43,7 +33,7 @@ def generarVector(numero):
 def lecturaTamano():
     mensaje_error = "Error: Debe introducirse un número natural."
 
-    print("\nIntroduce la longitud del mensaje : ", end="")
+    print("\nIntroduce la longitud del mensaje (recomendable menor a 25 por t.computación): ", end="")
     longitud_mensaje = input()
 
     if (not longitud_mensaje.isdigit()) or int(longitud_mensaje) <= 0:
@@ -60,7 +50,7 @@ def lecturaMensaje(n):
     mensaje_error_binario = "Error: Debe introducirse un valor en binario."
     mensaje_error_longitud = "Error: Debe introducirse un mensaje de longitud " + str(n) + "."
 
-    print("\nIntroduzca el mensaje : ", end = "")
+    print("\nIntroduzca el mensaje : ", end="")
     mensaje = input()
 
     if not esBinario(mensaje):
@@ -76,6 +66,27 @@ def lecturaMensaje(n):
 #------------------------------------------------------------------------------
 # Funciones del criptosistema
 #------------------------------------------------------------------------------ 
+
+# comprueba si un número es o no primo
+# n : int (número)
+def es_primo(numero):
+    if numero <= 1:
+        return False
+    if numero <= 3:
+        return True
+
+    # eliminamos los múltiplos de 2 y 3
+    if numero % 2 == 0 or numero % 3 == 0:
+        return False
+
+    # comprobamos el resto de factores primos
+    i = 5
+    while i * i <= numero:
+        if numero % i == 0 or numero % (i + 2) == 0:
+            return False
+        i += 6
+
+    return True
 
 # calcula el máximo común divisor de dos valores a y b
 # a : int (primer valor)
@@ -101,21 +112,23 @@ def generaSucesionSC(n):
 def generacionClavePriv(n):
     cp = []
 
-    # generamos los valores coprimos (w es invertible módulo m)
+    # generamos el valor m (primo)
     while True:
-        m  = 8443 # random.randint( 2**((2*n) + 1) + 1, 2**((2*n) + 2) - 1 )                       # jjj
+        m  = random.randint( 2**((2*n) + 1) + 1, 2**((2*n) + 2) - 1 )
+        if es_primo(m):
+            break
+    
+    # generamos el valor w (invertible módulo m)
+    while True:
         wp = random.randint(2, m-2)
         w  = int(wp / mcd(wp, m))
         if mcd(m, w) == 1:
             break
     
-    cp.append(m)
-    cp.append(w)
-
     # generamos la sucesión supercreciente
     ap = generaSucesionSC(n)
-    cp.append(ap)
-
+    
+    cp.append(m); cp.append(w); cp.append(ap)
     return cp
 
 # genera el vector a (clave pública) a partir de las claves privadas
@@ -140,13 +153,13 @@ def encriptarMensaje(mensaje, cpub):
 def merkleHellman(cp, s):
     res = []
     
-    # cálculo del inverso modular de w módulo m, esto es, el inverso de w módulo m
+    # calculamos el inverso modular de w módulo m, esto es, el inverso de w módulo m
     inv_w = pow(cp[1], cp[0]-2, cp[0])
 
-    # cálculo de sp
+    # calculamos sp
     sp = (inv_w * s) % cp[0]
 
-    # cálculo de resultado
+    # calculamos el resultado
     suma = 0
     for i in range(len(cp[2])-1, -1, -1):
         suma += cp[2][i]
@@ -156,7 +169,7 @@ def merkleHellman(cp, s):
             suma -= cp[2][i]
             res.insert(0, 0)
         
-    # devolvemos el vector resultado
+    # devolvemos el resultado
     return res
 
 #------------------------------------------------------------------------------
@@ -165,37 +178,34 @@ def merkleHellman(cp, s):
 
 if __name__ == '__main__':
 
-    # mensaje del usuario J
-    tamano_mensaje = 5 #lecturaTamano() jjj
+    # leemos el tamaño del mensaje
+    tamano_mensaje = lecturaTamano()
 
-    # generación de claves privadas
+    # generamos las claves privadas
     claves_privadas = generacionClavePriv(tamano_mensaje)
-    #print("Cprivada :", claves_privadas)
 
-    # generación de claves públicas
+    # generamos la clave pública
     clave_publica = generacionClavePub(claves_privadas)
-    #print("Cpublica :", clave_publica)
     
-    # lectura del mensaje original
-    #mensaje = lecturaMensaje(tamano_mensaje) jjj
+    # generamos un mensaje aleatorio
     mensaje = []
     for i in range(0, tamano_mensaje):
         mensaje.append(random.randint(0,1))
+    # mensaje = lecturaMensaje(tamano_mensaje) # Descomentar esta linea para insertar el mensaje deseado
 
-    # encriptación del mensaje
+    # encriptamos el mensaje
     mensaje_encriptado = encriptarMensaje(mensaje, clave_publica)
 
-    # desencriptación del mensaje
+    # desencriptamos el mensaje
     mensaje_desencriptado = merkleHellman(claves_privadas, mensaje_encriptado)
 
-    print("mensaje encriptado    :", mensaje_encriptado)
+    print("\nmensaje encriptado    :", mensaje_encriptado)
     print("mensaje introducido   :", mensaje)
     print("mensaje desencriptado :", mensaje_desencriptado)
-    print()
-    print("lm :", len(mensaje), "lmd :", len(mensaje_desencriptado))
 
+    # comprobamos el número de errores
     vector_dif = []
     for i in range(0, len(mensaje)):
         vector_dif.append(abs(mensaje[i] - mensaje_desencriptado[i]))
-    print("Diferencia :", sum(vector_dif))
+    print("Errores cometidos     :", sum(vector_dif))
     print()
