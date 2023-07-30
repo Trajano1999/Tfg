@@ -1,5 +1,7 @@
 # Criptosistema de Merkle-Hellman (mochila con trampilla aditiva)
 
+# Juan Manuel Mateos Pérez
+
 ## En este programa estamos simulando el envío de información entre dos usuarios. 
 # Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada.
 # A continuación, generamos nuestra clave pública partir de la clave privada desarrollada, para que otro usuario J nos envíe la información. 
@@ -100,7 +102,7 @@ def generacionClavePriv(n):
 
     # generamos los valores coprimos (w es invertible módulo m)
     while True:
-        m  = 8443 # random.randint( 2**((2*5) + 1) + 1, 2**((2*n) + 2) - 1 )                       # jjj
+        m  = 8443 # random.randint( 2**((2*n) + 1) + 1, 2**((2*n) + 2) - 1 )                       # jjj
         wp = random.randint(2, m-2)
         w  = int(wp / mcd(wp, m))
         if mcd(m, w) == 1:
