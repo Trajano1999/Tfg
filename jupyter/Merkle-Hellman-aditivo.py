@@ -7,6 +7,17 @@
 # Finalmente, como usuario I y diseñador, conociendo las claves privadas, aplicaremos el criptosistema de Merkle-Hellman para obtener el mensaje cifrado
 # recibido, comprobando en última instancia si coincidía con el original.
 
+import random
+
+# jjj
+def esSC(v):
+    s = 0
+    for i in range(0, len(v)-1):
+        s += v[i]
+        if(s >= v[i+1]):
+            return False
+    return True
+
 #------------------------------------------------------------------------------
 # Funciones auxiliares
 #------------------------------------------------------------------------------ 
@@ -46,7 +57,7 @@ def lecturaMensaje(n):
     mensaje_error_binario = "Error: Debe introducirse un valor en binario."
     mensaje_error_longitud = "Error: Debe introducirse un mensaje de longitud " + str(n) + "."
 
-    print("\nIntroduzca el mensaje : ", end="")
+    print("\nIntroduzca el mensaje : ", end = "")
     mensaje = input()
 
     if not esBinario(mensaje):
@@ -63,14 +74,44 @@ def lecturaMensaje(n):
 # Funciones del criptosistema
 #------------------------------------------------------------------------------ 
 
-# jjj genera un vector formado por m, w y ap (en ese orden)
+# calcula el máximo común divisor de dos valores a y b
+# a : int (primer valor)
+# b : int (segundo valor)
+def mcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return abs(a)
+
+# genera una sucesión supercreciente de n elementos
+# n : int (tamaño de la sucesión)
+def generaSucesionSC(n):
+    sucesion = []
+
+    for i in range(1, n+1):
+        ap = random.randint((2**(i-1)-1) * 2**n + 1, 2**(i-1) * (2**n))
+        sucesion.append(ap)
+
+    return sucesion
+
+# genera un vector formado por m, w y ap (en ese orden)
 # n : int (tamaño del mensaje)
 def generacionClavePriv(n):
     cp = []
-    m  = 8443
-    w  = 2550                           # invertible módulo m
-    ap = [171, 196, 457, 1191, 2410]    # sucesión supercreciente
-    cp.append(m); cp.append(w); cp.append(ap)
+
+    # generamos los valores coprimos (w es invertible módulo m)
+    while True:
+        m  = 8443 # random.randint( 2**((2*5) + 1) + 1, 2**((2*n) + 2) - 1 )                       # jjj
+        wp = random.randint(2, m-2)
+        w  = int(wp / mcd(wp, m))
+        if mcd(m, w) == 1:
+            break
+    
+    cp.append(m)
+    cp.append(w)
+
+    # generamos la sucesión supercreciente
+    ap = generaSucesionSC(n)
+    cp.append(ap)
 
     return cp
 
@@ -91,6 +132,8 @@ def encriptarMensaje(mensaje, cpub):
     return s
 
 # aplica el criptosistema de Merkle-Hellman (aditivo)
+# cp : vector de claves privadas
+# s : int (mensaje encriptado)
 def merkleHellman(cp, s):
     res = []
     
@@ -120,18 +163,21 @@ def merkleHellman(cp, s):
 if __name__ == '__main__':
 
     # mensaje del usuario J
-    tamano_mensaje = lecturaTamano()
-    
+    tamano_mensaje = 5 #lecturaTamano() jjj
+
     # generación de claves privadas
     claves_privadas = generacionClavePriv(tamano_mensaje)
-    print("Cprivada :", claves_privadas)
+    #print("Cprivada :", claves_privadas)
 
     # generación de claves públicas
     clave_publica = generacionClavePub(claves_privadas)
-    print("Cpublica :", clave_publica)
+    #print("Cpublica :", clave_publica)
     
     # lectura del mensaje original
-    mensaje = lecturaMensaje(tamano_mensaje)
+    #mensaje = lecturaMensaje(tamano_mensaje) jjj
+    mensaje = []
+    for i in range(0, tamano_mensaje):
+        mensaje.append(random.randint(0,1))
 
     # encriptación del mensaje
     mensaje_encriptado = encriptarMensaje(mensaje, clave_publica)
@@ -142,4 +188,11 @@ if __name__ == '__main__':
     print("mensaje encriptado    :", mensaje_encriptado)
     print("mensaje introducido   :", mensaje)
     print("mensaje desencriptado :", mensaje_desencriptado)
+    print()
+    print("lm :", len(mensaje), "lmd :", len(mensaje_desencriptado))
+
+    vector_dif = []
+    for i in range(0, len(mensaje)):
+        vector_dif.append(abs(mensaje[i] - mensaje_desencriptado[i]))
+    print("Diferencia :", sum(vector_dif))
     print()
