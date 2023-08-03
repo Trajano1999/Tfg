@@ -182,30 +182,37 @@ if __name__ == '__main__':
     tamano_mensaje = lecturaTamano()
 
     # generamos las claves privadas
+    print("\n\tGeneramos la clave privada...")
     claves_privadas = generacionClavePriv(tamano_mensaje)
+    print("\tClave privada :", claves_privadas)
 
     # generamos la clave pública
+    print("\n\tGeneramos la clave pública...")
     clave_publica = generacionClavePub(claves_privadas)
+    print("\tClave pública :", clave_publica)
     
     # generamos un mensaje aleatorio
+    print("\n\tGeneramos de un mensaje aleatorio...")
     mensaje = []
     for i in range(0, tamano_mensaje):
         mensaje.append(random.randint(0,1))
+    print("\tMensaje generado :", mensaje)
     # mensaje = lecturaMensaje(tamano_mensaje) # Descomentar esta linea para insertar el mensaje deseado
 
     # encriptamos el mensaje
+    print("\n\tEncriptamos el mensaje...")
     mensaje_encriptado = encriptarMensaje(mensaje, clave_publica)
+    print("\tMensaje cifrado :", mensaje_encriptado)
 
     # desencriptamos el mensaje
+    print("\n\tDesencriptamos el mensaje...")
     mensaje_desencriptado = merkleHellman(claves_privadas, mensaje_encriptado)
-
-    print("\nmensaje encriptado    :", mensaje_encriptado)
-    print("mensaje introducido   :", mensaje)
-    print("mensaje desencriptado :", mensaje_desencriptado)
+    print("\tMensaje desencriptado :", mensaje_desencriptado)
 
     # comprobamos el número de errores
+    print("\n\tCalculamos los errores cometidos...")
     vector_dif = []
     for i in range(0, len(mensaje)):
         vector_dif.append(abs(mensaje[i] - mensaje_desencriptado[i]))
-    print("Errores cometidos     :", sum(vector_dif))
+    print("\tErrores totales cometidos :", sum(vector_dif))
     print()
