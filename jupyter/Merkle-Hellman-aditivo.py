@@ -63,6 +63,17 @@ def lecturaMensaje(n):
 
     return generarVector(mensaje)
 
+# calcula el número de elementos distintos entre dos mensajes
+# m : str (mensaje original)
+# md : str (mensaje desencriptado)
+def calculoErrores(m, md):
+    vector_dif = []
+
+    for i in range(0, len(m)):
+        vector_dif.append(abs(m[i] - md[i]))
+
+    return sum(vector_dif)
+
 #------------------------------------------------------------------------------
 # Funciones del criptosistema
 #------------------------------------------------------------------------------ 
@@ -200,7 +211,7 @@ if __name__ == '__main__':
     # mensaje = lecturaMensaje(tamano_mensaje) # Descomentar esta linea para insertar el mensaje deseado
 
     # encriptamos el mensaje
-    print("\n\tEncriptamos el mensaje...")
+    print("\n\tCiframos el mensaje...")
     mensaje_encriptado = encriptarMensaje(mensaje, clave_publica)
     print("\tMensaje cifrado :", mensaje_encriptado)
 
@@ -211,8 +222,6 @@ if __name__ == '__main__':
 
     # comprobamos el número de errores
     print("\n\tCalculamos los errores cometidos...")
-    vector_dif = []
-    for i in range(0, len(mensaje)):
-        vector_dif.append(abs(mensaje[i] - mensaje_desencriptado[i]))
-    print("\tErrores totales cometidos :", sum(vector_dif))
+    num_errores = calculoErrores(mensaje, mensaje_desencriptado)
+    print("\tErrores totales cometidos :", num_errores)
     print()
