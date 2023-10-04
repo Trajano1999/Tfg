@@ -16,7 +16,7 @@ import random
 # Funciones Auxiliares
 #------------------------------------------------------------------------------
 
-# jjj comprueba si un número es o no primo
+# comprueba si un número es o no primo (jjj quitar)
 def es_primo(numero):
     if numero <= 1:
         return False
