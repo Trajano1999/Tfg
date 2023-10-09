@@ -70,8 +70,10 @@ class Merkle_Hellman:
         sum_ap = sum(ap)
 
         # generamos el valor m
+        lim_inf = 2 ** (2*n + 1) + 1 
+        lim_sup = 2 ** (2*n + 2) - 1
         while True:
-            m  = random.randint((2**((2*n) + 1)) + 1, (2**((2*n) + 2)) - 1)
+            m  = random.randint(lim_inf, lim_sup)
             if m > sum_ap:                                          
                 break
         
@@ -148,14 +150,13 @@ class Merkle_Hellman:
         self.comprobacion()
 
         print()
-        print("\tTamaño             : ", self.tamano)
-        print("\tNúmero Iteraciones : ", self.num_it)
-        print("\tClave Privada      : ", self.sk)
-        print("\tClave Pública      : ", self.pk)
-        print("\tMensaje Cifrado    : ", self.s)
-        print("\tMensaje Original   : ", self.mensaje)
-        print("\tMensaje Descifrado : ", self.res)
-        print("\tErrores            : ", self.errores)
+        print("\tTamaño del mensaje             : ", self.tamano)
+        print("\tClave privada                  : ", self.sk)
+        print("\tClave pública                  : ", self.pk)
+        print("\tMensaje original               : ", self.mensaje)
+        print("\tMensaje cifrado                : ", self.s)
+        print("\tMensaje cescifrado             : ", self.res)
+        print("\tErrores totales                : ", self.errores)
         print()
 
 #------------------------------------------------------------------------------
