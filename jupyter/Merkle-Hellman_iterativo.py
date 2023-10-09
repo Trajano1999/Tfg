@@ -12,44 +12,7 @@
 import math
 import random
 
-#------------------------------------------------------------------------------
-# Funciones Auxiliares
-#------------------------------------------------------------------------------
-
-# comprueba si un número es o no primo (jjj quitar)
-def es_primo(numero):
-    if numero <= 1:
-        return False
-    if numero <= 3:
-        return True
-
-    # eliminamos los múltiplos de 2 y 3
-    if numero % 2 == 0 or numero % 3 == 0:
-        return False
-
-    # comprobamos el resto de factores primos
-    i = 5
-    while i * i <= numero:
-        if numero % i == 0 or numero % (i + 2) == 0:
-            return False
-        i += 6
-
-    return True
-
-# lee y comprueba el tamaño del mensaje
-def lecturaTamano():
-    mensaje_error = "Error: Debe introducirse un número natural."
-
-    print("\nIntroduce la longitud del mensaje (recomendable menor a 25 por t.computación): ", end="")
-    longitud_mensaje = input()
-
-    if (not longitud_mensaje.isdigit()) or int(longitud_mensaje) <= 0:
-        print(mensaje_error)
-        exit(-1)
-    else:
-        longitud_mensaje = int(longitud_mensaje)
-
-    return longitud_mensaje
+import time # jjj
 
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
@@ -58,32 +21,34 @@ def lecturaTamano():
 class Merkle_Hellman:
     # constructor
     def __init__(self, tamano, num_it, mensaje=None, sk=None):
-        self.tamano         = tamano
-        self.num_it_pedidas = num_it
-        self.s             = -1
-        self.res           = -1
-        self.errores       = -1
-        self.num_it_reales = +1
+        self.tamano  = tamano
+        self.num_it  = num_it
+        self.s       = -1
+        self.res     = -1
+        self.errores = -1
+        self.it_done = 0
 
         # genero el mensaje en caso de no recibirlo
         if mensaje is None:
-            self.__generarMensaje() 
+            self.__generaMensaje() 
         else:
             self.mensaje = mensaje
         
-        # genera la clave privada en caso de no recibirla
+        # genero la clave privada en caso de no recibirla
         if sk is None:
             self.__generarClavePrivada()
         else:
             self.sk = sk
-            if self.num_it_pedidas > 1: 
-                self.__iterarClavePrivada()
-        
+    
         # genero la clave pública
         self.__generarClavePublica()
 
+        # iteramos la clave privada si es necesario
+        if self.num_it > self.it_done:
+            self.__iterarClavePrivada()
+
     # genera un mensaje aleatorio
-    def __generarMensaje(self):
+    def __generaMensaje(self):
         n = self.tamano
         mensaje = []
 
@@ -93,7 +58,7 @@ class Merkle_Hellman:
         self.mensaje = mensaje
 
     # genera una sucesión supercreciente
-    def __generarSucesionSC(self):
+    def __generaSucesionSC(self):
         n = self.tamano
         sucesion = []
 
@@ -101,20 +66,22 @@ class Merkle_Hellman:
             ap = random.randint(((2**(i-1))-1) * (2**n) + 1, (2**(i-1)) * (2**n))
             sucesion.append(ap)
 
-        return sucesion        
-
-    # genera la clave privada inicial
+        return sucesion
+    
+    # genera la clave privada
     def __generarClavePrivada(self):
         n = self.tamano
 
-        # genera la sucesión
-        ap = self.__generarSucesionSC()
+        # generamos la sucesión supercreciente
+        ap = self.__generaSucesionSC()
         sum_ap = sum(ap)
 
         # generamos el valor m
+        lim_inf = 2 ** (2*n + 1) + 1 
+        lim_sup = 2 ** (2*n + 2) - 1
         while True:
-            m  = random.randint((2**((2*n) + 1)) + 1, (2**((2*n) + 2)) - 1)     # jjj tiene que haber un fallo aquí por lo de ser primo
-            if m > sum_ap:
+            m  = random.randint(lim_inf, lim_sup)
+            if m > sum_ap:                                          
                 break
         
         # generamos el valor w (invertible módulo m)
@@ -123,27 +90,31 @@ class Merkle_Hellman:
             w  = int(wp / math.gcd(wp, m))
             if math.gcd(m, w) == 1:
                 break
-
+                
         sk = [m, w, ap]
         self.sk = sk
 
-        if self.num_it_pedidas > 1: 
-            self.__iterarClavePrivada()
-
-    # itera la clave privada
+    # realiza diversas iteraciones sobre la clave privada
     def __iterarClavePrivada(self):
         n          = self.tamano
-        it_reales  = self.num_it_reales
+        it_reales  = self.it_done
+        it_totales = self.num_it
         
-        while self.num_it_pedidas > it_reales:
+        while it_totales > it_reales:
             # genera la sucesión
-            self.__generarClavePublica()
             ap = self.pk
             sum_ap = sum(ap)
 
+            # jjj el max valor del intervalo es 4095 y la suma es mayor a 5000
             # generamos el valor m
+            lim_inf = 2 ** (2*n + 1) + 1
+            lim_sup = 2 ** (2*n + 2) - 1
+            print("Lim inf : ", lim_inf)
+            print("Lim sup : ", lim_sup)
+            print("Suma    : ", sum_ap)
+            time.sleep(1)
             while True:
-                m  = random.randint((2**((2*n) + 1)) + 1, (2**((2*n) + 2)) - 1)     # jjj el max valor del intervalo es 4095 y la suma es mayor a 5000
+                m  = random.randint(lim_inf, lim_sup)
                 if m > sum_ap:                                      
                     break
                     
@@ -157,92 +128,82 @@ class Merkle_Hellman:
             it_reales += 1
             sk = [m, w, ap]
             self.sk = sk
+            self.__generarClavePublica()
 
-        self.num_it_reales = it_reales
+        self.num_it = it_reales
 
     # genera la clave pública
     def __generarClavePublica(self):
+        n  = self.tamano
         sk = self.sk
         a  = []
 
-        for i in range(0, len(sk[2])):
+        for i in range(0, n):
             a.append((sk[1] * sk[2][i]) % sk[0])
         
         self.pk = a
 
     # cifra un mensaje
-    def __cifrar(self):
+    def cifrar(self):
+        n       = self.tamano
         pk      = self.pk
         mensaje = self.mensaje
-        s = 0
+        s       = 0
 
-        for i in range(0, len(pk)):
+        for i in range(0, n):
             s += mensaje[i] * pk[i]
         
         self.s = s
 
     # descifra un mensaje
-    def __descifrar(self):
+    def descifrar(self):
+        n   = self.tamano
         sk  = self.sk
         s   = self.s
-        res = []
+        res = [0 for i in range(n)]
         
         # calculamos el inverso modular de w módulo m
-        inv_w = pow(sk[1], sk[0]-2, sk[0])
+        inv_w = pow(sk[1], -1, sk[0])
 
         # calculamos sp
         sp = (inv_w * s) % sk[0]
 
         # calculamos el resultado
-        suma = 0
-        for i in range(len(sk[2])-1, -1, -1):
-            suma += sk[2][i]
-            if(sp >= suma):
-                res.insert(0, 1)
-            else:
-                suma -= sk[2][i]
-                res.insert(0, 0)
+        for i in range(n):
+            if sp >= sk[2][n - 1 - i]:
+                sp -= sk[2][n - 1 - i]
+                res[n - 1 - i] = 1
         
         self.res = res
 
     # comprobamos el resultado
-    def __comprobar(self):
+    def comprobacion(self):
+        n = self.tamano
         mensaje_original = self.mensaje
         mensaje_obtenido = self.res
         vector_dif = []
 
-        for i in range(0, len(mensaje_original)):
+        for i in range(0, n):
             vector_dif.append(abs(mensaje_original[i] - mensaje_obtenido[i]))
 
         self.errores = sum(vector_dif)
 
     # aplica todo el criptosistema
     def do(self):
-        self.__cifrar()
-        self.__descifrar()
-        self.__comprobar()
+        self.cifrar()
+        self.descifrar()
+        self.comprobacion()
 
-        print("\n\tTamaño del vector             : ", self.tamano)
-        print("\tNúmero iteraciones pedidas    : ", self.num_it_pedidas)
-        print("\tNúmero iteraciones realizadas : ", self.num_it_reales)
-
-        print("\n\tGeneramos la clave privada...")
-        print("\tClave Privada : ", self.sk)
-
-        print("\n\tGeneramos la clave pública...")
-        print("\tClave Pública : ", self.pk)
-
-        print("\n\tGeneramos de un mensaje aleatorio...")
-        print("\tMensaje Original : ", self.mensaje)
-
-        print("\n\tCiframos el mensaje...")
-        print("\tMensaje Cifrado : ", self.s)
-
-        print("\n\tDesciframos el mensaje...")
-        print("\tMensaje Descifrado : ", self.res)
-
-        print("\n\tCalculamos los errores cometidos...")
-        print("\tErrores : ", self.errores)
+        print()
+        print("\tTamaño del mensaje             : ", self.tamano)
+        print("\tNúmero iteraciones solicitadas : ", self.num_it)
+        print("\tNúmero iteraciones realizadas  : ", self.it_done)
+        print("\tClave privada                  : ", self.sk)
+        print("\tClave pública                  : ", self.pk)
+        print("\tMensaje original               : ", self.mensaje)
+        print("\tMensaje cifrado                : ", self.s)
+        print("\tMensaje cescifrado             : ", self.res)
+        print("\tErrores totales                : ", self.errores)
         print()
 
 #------------------------------------------------------------------------------
@@ -250,12 +211,8 @@ class Merkle_Hellman:
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-
-    # jjj leemos el tamaño del mensaje
-    #tamano_mensaje = lecturaTamano()
-    
-    tam     = 5
-    it      = 1
+    tam     = 40
+    it      = 0
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 

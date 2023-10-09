@@ -13,65 +13,31 @@ import math
 import random
 
 #------------------------------------------------------------------------------
-# Funciones Auxiliares
-#------------------------------------------------------------------------------
-
-# comprueba si un número es o no primo (jjj quitar)
-def es_primo(numero):
-    if numero <= 1:
-        return False
-    if numero <= 3:
-        return True
-
-    # eliminamos los múltiplos de 2 y 3
-    if numero % 2 == 0 or numero % 3 == 0:
-        return False
-
-    # comprobamos el resto de factores primos
-    i = 5
-    while i * i <= numero:
-        if numero % i == 0 or numero % (i + 2) == 0:
-            return False
-        i += 6
-
-    return True
-
-# lee y comprueba el tamaño del mensaje
-def lecturaTamano():
-    mensaje_error = "Error: Debe introducirse un número natural."
-
-    print("\nIntroduce la longitud del mensaje (recomendable menor a 25 por t.computación): ", end="")
-    longitud_mensaje = input()
-
-    if (not longitud_mensaje.isdigit()) or int(longitud_mensaje) <= 0:
-        print(mensaje_error)
-        exit(-1)
-    else:
-        longitud_mensaje = int(longitud_mensaje)
-
-    return longitud_mensaje
-
-#------------------------------------------------------------------------------
 # Clase Merkle_Hellman
 #------------------------------------------------------------------------------
 
 class Merkle_Hellman:
     # constructor
-    def __init__(self, tamano, num_it, sk=None):
+    def __init__(self, tamano, num_it, mensaje=None, sk=None):
         self.tamano  = tamano
-        self.__generaMensaje()
         self.num_it  = num_it
         self.s       = -1
         self.res     = -1
         self.errores = -1
+
+        # genero el mensaje en caso de no recibirlo
+        if mensaje is None:
+            self.__generaMensaje() 
+        else:
+            self.mensaje = mensaje
         
-        # genera la clave privada en caso de no recibirla
+        # genero la clave privada en caso de no recibirla
         if sk is None:
             self.__generarClavePrivada()
         else:
             self.sk = sk
         
-        # generamos la clave pública
+        # genero la clave pública
         self.__generarClavePublica()
 
     # genera un mensaje aleatorio
@@ -103,10 +69,10 @@ class Merkle_Hellman:
         ap = self.__generaSucesionSC()
         sum_ap = sum(ap)
 
-        # generamos el valor m # PRIMO jjj no lo entiendo !!
+        # generamos el valor m
         while True:
             m  = random.randint((2**((2*n) + 1)) + 1, (2**((2*n) + 2)) - 1)
-            if m > sum_ap and es_primo(m):                                          
+            if m > sum_ap:                                          
                 break
         
         # generamos el valor w (invertible módulo m)
@@ -121,56 +87,56 @@ class Merkle_Hellman:
 
     # genera la clave pública
     def __generarClavePublica(self):
+        n  = self.tamano
         sk = self.sk
-        a = []
+        a  = []
 
-        for i in range(0, len(sk[2])):
+        for i in range(0, n):
             a.append((sk[1] * sk[2][i]) % sk[0])
         
         self.pk = a
 
     # cifra un mensaje
     def cifrar(self):
-        pk = self.pk
+        n       = self.tamano
+        pk      = self.pk
         mensaje = self.mensaje
-        s = 0
+        s       = 0
 
-        for i in range(0, len(pk)):
+        for i in range(0, n):
             s += mensaje[i] * pk[i]
         
         self.s = s
 
     # descifra un mensaje
     def descifrar(self):
-        sk = self.sk
-        s = self.s
-        res = []
+        n   = self.tamano
+        sk  = self.sk
+        s   = self.s
+        res = [0 for i in range(n)]
         
         # calculamos el inverso modular de w módulo m
-        inv_w = pow(sk[1], sk[0]-2, sk[0])
+        inv_w = pow(sk[1], -1, sk[0])
 
         # calculamos sp
         sp = (inv_w * s) % sk[0]
 
         # calculamos el resultado
-        suma = 0
-        for i in range(len(sk[2])-1, -1, -1):
-            suma += sk[2][i]
-            if(sp >= suma):
-                res.insert(0, 1)
-            else:
-                suma -= sk[2][i]
-                res.insert(0, 0)
+        for i in range(n):
+            if sp >= sk[2][n - 1 - i]:
+                sp -= sk[2][n - 1 - i]
+                res[n - 1 - i] = 1
         
         self.res = res
 
     # comprobamos el resultado
     def comprobacion(self):
+        n = self.tamano
         mensaje_original = self.mensaje
         mensaje_obtenido = self.res
         vector_dif = []
 
-        for i in range(0, len(mensaje_original)):
+        for i in range(0, n):
             vector_dif.append(abs(mensaje_original[i] - mensaje_obtenido[i]))
 
         self.errores = sum(vector_dif)
@@ -181,37 +147,26 @@ class Merkle_Hellman:
         self.descifrar()
         self.comprobacion()
 
-        print("\n\tGeneramos la clave privada...")
-        print("\tClave Privada : ", self.sk, " Mcd(m,w) : ", math.gcd(self.sk[0], self.sk[1]))
-
-        print("\n\tGeneramos la clave pública...")
-        print("\tClave Pública : ", self.pk)
-
-        print("\n\tGeneramos de un mensaje aleatorio...") # falta generarlo aleatoriamente
-        print("\tMensaje Original : ", self.mensaje)
-
-        print("\n\tCiframos el mensaje...")
-        print("\tMensaje Cifrado : ", self.s)
-
-        print("\n\tDesciframos el mensaje...")
+        print()
+        print("\tTamaño             : ", self.tamano)
+        print("\tNúmero Iteraciones : ", self.num_it)
+        print("\tClave Privada      : ", self.sk)
+        print("\tClave Pública      : ", self.pk)
+        print("\tMensaje Cifrado    : ", self.s)
+        print("\tMensaje Original   : ", self.mensaje)
         print("\tMensaje Descifrado : ", self.res)
-
-        print("\n\tCalculamos los errores cometidos...")
-        print("\tErrores : ", self.errores)
+        print("\tErrores            : ", self.errores)
+        print()
 
 #------------------------------------------------------------------------------
 # Main
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
+    tam     = 5
+    it      = 0
+    mensaje = [0, 0, 0, 1, 1]
+    sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
-    # leemos el tamaño del mensaje
-    #tamano_mensaje = lecturaTamano()
-    
-    tam = 5
-    it = 1
-    sk = [3037, 1019, [851, 1349, 203, 904, 957]]
-
-    merkle_hellman = Merkle_Hellman(tam, it, sk)
+    merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
-    print()
