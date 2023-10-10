@@ -18,9 +18,8 @@ import random
 
 class Merkle_Hellman:
     # constructor
-    def __init__(self, tamano, num_it, mensaje=None, sk=None):
+    def __init__(self, tamano, mensaje=None, sk=None):
         self.tamano  = tamano
-        self.num_it  = num_it
         self.s       = -1
         self.res     = -1
         self.errores = -1
@@ -165,9 +164,8 @@ class Merkle_Hellman:
 
 if __name__ == '__main__':
     tam     = 5
-    it      = 0
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
-    merkle_hellman = Merkle_Hellman(tam, it)
+    merkle_hellman = Merkle_Hellman(tam)
     merkle_hellman.do()
