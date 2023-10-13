@@ -5,25 +5,21 @@
 import math
 import random
 
-import time # jjj
-
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
 #------------------------------------------------------------------------------
 
 class Merkle_Hellman:
     # constructor
-    def __init__(self, tamano, num_it, mensaje=None, sk=None):
+    def __init__(self, tamano, mensaje=None, sk=None):
         self.tamano  = tamano
-        self.num_it  = num_it
         self.s       = -1
         self.res     = -1
         self.errores = -1
-        self.it_done = 0
 
         # genero el mensaje en caso de no recibirlo
         if mensaje is None:
-            self.__generaMensaje() 
+            self.__generaMensaje()
         else:
             self.mensaje = mensaje
         
@@ -35,10 +31,6 @@ class Merkle_Hellman:
     
         # genero la clave pública
         self.__generarClavePublica()
-
-        # iteramos la clave privada si es necesario
-        if self.num_it > self.it_done:
-            self.__iterarClavePrivada()
 
     # genera un mensaje aleatorio
     def __generaMensaje(self):
@@ -87,44 +79,6 @@ class Merkle_Hellman:
         sk = [m, w, ap]
         self.sk = sk
 
-    # realiza diversas iteraciones sobre la clave privada
-    def __iterarClavePrivada(self):
-        n          = self.tamano
-        it_reales  = self.it_done
-        it_totales = self.num_it
-        
-        while it_totales > it_reales:
-            # genera la sucesión
-            ap = self.pk
-            sum_ap = sum(ap)
-
-            # jjj el max valor del intervalo es 4095 y la suma es mayor a 5000
-            # generamos el valor m
-            lim_inf = 2 ** (2*n + 1) + 1
-            lim_sup = 2 ** (2*n + 2) - 1
-            print("Lim inf : ", lim_inf)
-            print("Lim sup : ", lim_sup)
-            print("Suma    : ", sum_ap)
-            time.sleep(1)
-            while True:
-                m  = random.randint(lim_inf, lim_sup)
-                if m > sum_ap:                                      
-                    break
-                    
-            # generamos el valor w (invertible módulo m)
-            while True:
-                wp = random.randint(2, m-2)
-                w  = int(wp / math.gcd(wp, m))
-                if math.gcd(m, w) == 1:
-                    break
-
-            it_reales += 1
-            sk = [m, w, ap]
-            self.sk = sk
-            self.__generarClavePublica()
-
-        self.num_it = it_reales
-
     # genera la clave pública
     def __generarClavePublica(self):
         n  = self.tamano
@@ -170,7 +124,7 @@ class Merkle_Hellman:
         self.res = res
 
     # comprobamos el resultado
-    def comprobacion(self):
+    def comprobacionMH(self):
         n = self.tamano
         mensaje_original = self.mensaje
         mensaje_obtenido = self.res
@@ -185,13 +139,11 @@ class Merkle_Hellman:
     def do(self):
         self.cifrar()
         self.descifrar()
-        self.comprobacion()
+        self.comprobacionMH()
 
         print()
         print("\tCriptosistema de Merkle-Hellman")
         print("\tTamaño del mensaje             : ", self.tamano)
-        print("\tNúmero iteraciones solicitadas : ", self.num_it)
-        print("\tNúmero iteraciones realizadas  : ", self.it_done)
         print("\tClave privada                  : ", self.sk)
         print("\tClave pública                  : ", self.pk)
         print("\tMensaje original               : ", self.mensaje)
@@ -200,23 +152,20 @@ class Merkle_Hellman:
         print("\tErrores totales                : ", self.errores)
         print()
         print("\tCriptoataque de Shamir")
-
-    # realiza el criptoataque de Shamir
-    def shamir(self):
-        print("\tValor                          : ", 0)
         print()
-        return 0
 
+    def shamir(self):
+        return 0
+    
 #------------------------------------------------------------------------------
 # Main
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     tam     = 5
-    it      = 0
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
-    merkle_hellman = Merkle_Hellman(tam, it)
+    merkle_hellman = Merkle_Hellman(tam)
     merkle_hellman.do()
     merkle_hellman.shamir()

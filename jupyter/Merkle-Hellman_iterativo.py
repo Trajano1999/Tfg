@@ -35,7 +35,7 @@ class Merkle_Hellman:
 
         # genero el mensaje en caso de no recibirlo
         if mensaje is None:
-            self.__generaMensaje() 
+            self.__generaMensaje()
         else:
             self.mensaje = mensaje
         
@@ -44,7 +44,7 @@ class Merkle_Hellman:
             self.__generarClavePrivada()
         else:
             self.sk = sk
-    
+
         # genero la clave pública
         self.__generarClavePublica()
 
