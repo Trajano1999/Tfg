@@ -11,12 +11,44 @@ import random
 
 class Shamir:
     # constructor
-    def __init__(self, pk, s):
+    def __init__(self, pk, s, sk=None):
         self.pk      = pk
         self.s       = s
-        self.mensaje = merkle_hellman.mensaje                                       # jjj
-        self.res     = self.mensaje                                                 # jjj
+        self.res     = -1
         self.errores = -1
+        self.tamano  = merkle_hellman.tamano                                    # jjj
+        self.mensaje = merkle_hellman.mensaje                                   # jjj
+        
+        # obtengo la clave privada en caso de no recibirla
+        if sk is None:
+            self.__obtenerClavePrivada()
+        else:
+            self.sk = sk
+
+    # averigua la clave privada (jjj)
+    def __obtenerClavePrivada(self):
+        self.sk = merkle_hellman.sk
+
+    # descrifra un mensaje                                                      # jjj mismo descrifrado que Merkle-Hellman
+    def descifrar(self):
+        n   = self.tamano
+        sk  = self.sk
+        s   = self.s
+        res = [0 for i in range(n)]
+        
+        # calculamos el inverso modular de w módulo m
+        inv_w = pow(sk[1], -1, sk[0])
+
+        # calculamos sp
+        sp = (inv_w * s) % sk[0]
+
+        # calculamos el resultado
+        for i in range(n):
+            if sp >= sk[2][n - 1 - i]:
+                sp -= sk[2][n - 1 - i]
+                res[n - 1 - i] = 1
+        
+        self.res = res
 
     # calcula el número de fallos del resultado
     def comprobar(self):
@@ -31,9 +63,12 @@ class Shamir:
 
     # aplica todo el criptoataque y muestra los resultados
     def do(self):
+        self.descifrar()
         self.comprobar()
 
         print("\tCriptoataque de Shamir")
+        print("\tTamaño del mensaje : ", self.tamano)
+        print("\tClave privada      : ", self.sk)
         print("\tClave pública      : ", self.pk)
         print("\tMensaje original   : ", self.mensaje)
         print("\tMensaje cifrado    : ", self.s)
