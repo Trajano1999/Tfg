@@ -11,11 +11,11 @@ import random
 
 class Shamir:
     # constructor
-    def __init__(self, pk, s, mensaje):
+    def __init__(self, pk, s):
         self.pk      = pk
         self.s       = s
-        self.mensaje = mensaje
-        self.res     = mensaje
+        self.mensaje = merkle_hellman.mensaje                                       # jjj
+        self.res     = self.mensaje                                                 # jjj
         self.errores = -1
 
     # calcula el número de fallos del resultado
@@ -203,10 +203,9 @@ if __name__ == '__main__':
     merkle_hellman.do()
     
     # variables Shamir
-    pk      = merkle_hellman.pk
-    s       = merkle_hellman.s
-    mensaje = merkle_hellman.mensaje
+    pk = merkle_hellman.pk
+    s  = merkle_hellman.s
 
     # Shamir
-    shamir = Shamir(pk, s, mensaje)
+    shamir = Shamir(pk, s)
     shamir.do()
