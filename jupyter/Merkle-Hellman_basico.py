@@ -1,4 +1,4 @@
-# Criptosistema de Merkle-Hellman
+# Criptosistema de Merkle-Hellman básico
 
 # Juan Manuel Mateos Pérez
 
@@ -8,6 +8,10 @@
 # Luego, como usuario J, procederemos con la encriptación del mensaje S = a*x para enviarlo al usuario I.
 # Finalmente, como usuario I y diseñador, conociendo las claves privadas, aplicaremos el criptosistema de Merkle-Hellman para obtener el mensaje cifrado
 # recibido, comprobando en última instancia si coincidía con el original.
+
+# Para ejecutar el programa solo debemos modificar el valor de tamaño del mensaje en el main (variable tam). Además, podemos comprobar el resultado con
+# valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar en la llamada al constructor. Si no incluimos esos valores, el programa
+# generará otros automáticamente.
 
 import math
 import random
@@ -26,7 +30,7 @@ class Merkle_Hellman:
 
         # genero el mensaje en caso de no recibirlo
         if mensaje is None:
-            self.__generaMensaje() 
+            self.__generaMensaje()
         else:
             self.mensaje = mensaje
         

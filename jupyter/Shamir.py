@@ -1,18 +1,6 @@
-# Criptosistema de Merkle-Hellman iterativo
+# Criptoataque de Shamir al criptosistema de Merkle-Hellman
 
 # Juan Manuel Mateos Pérez
-
-## En este programa estamos simulando el envío de información entre dos usuarios. 
-# Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada, y
-# aplicaremos tantas iteraciones como se requieran.
-# A continuación, generamos nuestra clave pública partir de la clave privada desarrollada, para que otro usuario J nos envíe la información. 
-# Luego, como usuario J, procederemos con la encriptación del mensaje S = a*x para enviarlo al usuario I.
-# Finalmente, como usuario I y diseñador, conociendo las claves privadas, aplicaremos el criptosistema de Merkle-Hellman para obtener el mensaje cifrado
-# recibido, comprobando en última instancia si coincidía con el original.
-
-# Para ejecutar el programa solo debemos modificar el valor de tamaño del mensaje en el main (variable tam) y el número de iteraciones de la clave 
-# privada (variable it). Además, podemos comprobar el resultado con valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar 
-# en la llamada al constructor. Si no incluimos esos valores, el programa generará otros automáticamente.
 
 import math
 import random
@@ -200,6 +188,7 @@ class Merkle_Hellman:
         self.comprobacion()
 
         print()
+        print("\tCriptosistema de Merkle-Hellman")
         print("\tTamaño del mensaje             : ", self.tamano)
         print("\tNúmero iteraciones solicitadas : ", self.num_it)
         print("\tNúmero iteraciones realizadas  : ", self.it_done)
@@ -210,6 +199,13 @@ class Merkle_Hellman:
         print("\tMensaje cescifrado             : ", self.res)
         print("\tErrores totales                : ", self.errores)
         print()
+        print("\tCriptoataque de Shamir")
+
+    # realiza el criptoataque de Shamir
+    def shamir(self):
+        print("\tValor                          : ", 0)
+        print()
+        return 0
 
 #------------------------------------------------------------------------------
 # Main
@@ -217,9 +213,10 @@ class Merkle_Hellman:
 
 if __name__ == '__main__':
     tam     = 5
-    it      = 1
+    it      = 0
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
     merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
+    merkle_hellman.shamir()
