@@ -134,8 +134,8 @@ class Merkle_Hellman:
         
         self.res = res
 
-    # comprobamos el resultado
-    def comprobacion(self):
+    # calcula el número de fallos del resultado
+    def comprobar(self):
         n = self.tamano
         mensaje_original = self.mensaje
         mensaje_obtenido = self.res
@@ -146,20 +146,20 @@ class Merkle_Hellman:
 
         self.errores = sum(vector_dif)
 
-    # aplica todo el criptosistema
+    # aplica todo el criptosistema y muestra los resultados
     def do(self):
         self.cifrar()
         self.descifrar()
-        self.comprobacion()
+        self.comprobar()
 
         print()
-        print("\tTamaño del mensaje             : ", self.tamano)
-        print("\tClave privada                  : ", self.sk)
-        print("\tClave pública                  : ", self.pk)
-        print("\tMensaje original               : ", self.mensaje)
-        print("\tMensaje cifrado                : ", self.s)
-        print("\tMensaje cescifrado             : ", self.res)
-        print("\tErrores totales                : ", self.errores)
+        print("\tTamaño del mensaje : ", self.tamano)
+        print("\tClave privada      : ", self.sk)
+        print("\tClave pública      : ", self.pk)
+        print("\tMensaje original   : ", self.mensaje)
+        print("\tMensaje cifrado    : ", self.s)
+        print("\tMensaje descifrado : ", self.res)
+        print("\tErrores totales    : ", self.errores)
         print()
 
 #------------------------------------------------------------------------------

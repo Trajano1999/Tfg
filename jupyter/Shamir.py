@@ -6,6 +6,42 @@ import math
 import random
 
 #------------------------------------------------------------------------------
+# Clase Shamir
+#------------------------------------------------------------------------------
+
+class Shamir:
+    # constructor
+    def __init__(self, pk, s, mensaje):
+        self.pk      = pk
+        self.s       = s
+        self.mensaje = mensaje
+        self.res     = mensaje
+        self.errores = -1
+
+    # calcula el número de fallos del resultado
+    def comprobar(self):
+        mensaje_original = self.mensaje
+        mensaje_obtenido = self.res
+        vector_dif = []
+
+        for i in range(0, len(mensaje_original)):
+            vector_dif.append(abs(mensaje_original[i] - mensaje_obtenido[i]))
+
+        self.errores = sum(vector_dif)
+
+    # aplica todo el criptoataque y muestra los resultados
+    def do(self):
+        self.comprobar()
+
+        print("\tCriptoataque de Shamir")
+        print("\tClave pública      : ", self.pk)
+        print("\tMensaje original   : ", self.mensaje)
+        print("\tMensaje cifrado    : ", self.s)
+        print("\tMensaje obtenido   : ", self.res)
+        print("\tErrores totales    : ", self.errores)
+        print()
+
+#------------------------------------------------------------------------------
 # Clase Merkle_Hellman
 #------------------------------------------------------------------------------
 
@@ -123,8 +159,8 @@ class Merkle_Hellman:
         
         self.res = res
 
-    # comprobamos el resultado
-    def comprobacionMH(self):
+    # calcula el número de fallos del resultado
+    def comprobar(self):
         n = self.tamano
         mensaje_original = self.mensaje
         mensaje_obtenido = self.res
@@ -135,37 +171,42 @@ class Merkle_Hellman:
 
         self.errores = sum(vector_dif)
 
-    # aplica todo el criptosistema
+    # aplica todo el criptosistema y muestra los resultados
     def do(self):
         self.cifrar()
         self.descifrar()
-        self.comprobacionMH()
+        self.comprobar()
 
         print()
         print("\tCriptosistema de Merkle-Hellman")
-        print("\tTamaño del mensaje             : ", self.tamano)
-        print("\tClave privada                  : ", self.sk)
-        print("\tClave pública                  : ", self.pk)
-        print("\tMensaje original               : ", self.mensaje)
-        print("\tMensaje cifrado                : ", self.s)
-        print("\tMensaje cescifrado             : ", self.res)
-        print("\tErrores totales                : ", self.errores)
-        print()
-        print("\tCriptoataque de Shamir")
+        print("\tTamaño del mensaje : ", self.tamano)
+        print("\tClave privada      : ", self.sk)
+        print("\tClave pública      : ", self.pk)
+        print("\tMensaje original   : ", self.mensaje)
+        print("\tMensaje cifrado    : ", self.s)
+        print("\tMensaje cescifrado : ", self.res)
+        print("\tErrores totales    : ", self.errores)
         print()
 
-    def shamir(self):
-        return 0
-    
 #------------------------------------------------------------------------------
 # Main
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
+    # variables Merkle-Hellman
     tam     = 5
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
+    # Merkle-Hellman
     merkle_hellman = Merkle_Hellman(tam)
     merkle_hellman.do()
-    merkle_hellman.shamir()
+    
+    # variables Shamir
+    pk      = merkle_hellman.pk
+    s       = merkle_hellman.s
+    mensaje = merkle_hellman.mensaje
+
+    # Shamir
+    shamir = Shamir(pk, s, mensaje)
+    shamir.do()
