@@ -153,15 +153,15 @@ class Merkle_Hellman:
         self.descifrar()
         self.comprobar()
 
-        # print()
-        # print("\tTamaño del mensaje :", self.tamano)
-        # print("\tClave privada      :", self.sk)
-        # print("\tClave pública      :", self.pk)
-        # print("\tMensaje original   :", self.mensaje)
-        # print("\tMensaje cifrado    :", self.s)
-        # print("\tMensaje descifrado :", self.res)
-        # print("\tErrores totales    :", self.errores)
-        # print()
+        print()
+        print("\tTamaño del mensaje :", self.tamano)
+        print("\tClave privada      :", self.sk)
+        print("\tClave pública      :", self.pk)
+        print("\tMensaje original   :", self.mensaje)
+        print("\tMensaje cifrado    :", self.s)
+        print("\tMensaje descifrado :", self.res)
+        print("\tErrores totales    :", self.errores)
+        print()
 
 #------------------------------------------------------------------------------
 # Main
@@ -172,14 +172,5 @@ if __name__ == '__main__':
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
-    #merkle_hellman = Merkle_Hellman(tam)
-    #merkle_hellman.do()
-
-    sumas = 0
-    for i in range(0, 100):
-        for j in range(3, 100):
-            merkle_hellman = Merkle_Hellman(j)
-            merkle_hellman.do()
-            sumas += merkle_hellman.errores
-        print(i)
-    print("Errores totales de 100 :", sumas)
+    merkle_hellman = Merkle_Hellman(tam)
+    merkle_hellman.do()
