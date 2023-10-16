@@ -91,8 +91,9 @@ class Merkle_Hellman:
         
         # generamos el valor w (invertible módulo m)
         while True:
-            wp = random.randint(2, m-2)
-            w  = int(wp / math.gcd(wp, m))
+            wp  = random.randint(2, m-2)
+            gcd = math.gcd(m, wp)
+            w   = wp // gcd
             if math.gcd(m, w) == 1:
                 break
                 
@@ -104,29 +105,21 @@ class Merkle_Hellman:
         n          = self.tamano
         it_reales  = self.it_done
         it_totales = self.num_it
-        
+
         while it_totales > it_reales:
             # genera la sucesión
             ap = self.pk
-            sum_ap = sum(ap)
 
-            # jjj el max valor del intervalo es 4095 y la suma es mayor a 5000
             # generamos el valor m
             lim_inf = 2 ** (2*n + 1) + 1
             lim_sup = 2 ** (2*n + 2) - 1
-            print("Lim inf : ", lim_inf)
-            print("Lim sup : ", lim_sup)
-            print("Suma    : ", sum_ap)
-            time.sleep(1)
-            while True:
-                m  = random.randint(lim_inf, lim_sup)
-                if m > sum_ap:                                      
-                    break
+            m  = random.randint(lim_inf, lim_sup)
                     
             # generamos el valor w (invertible módulo m)
             while True:
                 wp = random.randint(2, m-2)
-                w  = int(wp / math.gcd(wp, m))
+                gcd = math.gcd(m, wp)
+                w   = wp // gcd
                 if math.gcd(m, w) == 1:
                     break
 
@@ -135,7 +128,7 @@ class Merkle_Hellman:
             self.sk = sk
             self.__generarClavePublica()
 
-        self.num_it = it_reales
+        self.it_done = it_reales
 
     # genera la clave pública
     def __generarClavePublica(self):
@@ -200,15 +193,15 @@ class Merkle_Hellman:
         self.comprobar()
 
         print()
-        print("\tTamaño del mensaje             : ", self.tamano)
-        print("\tNúmero iteraciones solicitadas : ", self.num_it)
-        print("\tNúmero iteraciones realizadas  : ", self.it_done)
-        print("\tClave privada                  : ", self.sk)
-        print("\tClave pública                  : ", self.pk)
-        print("\tMensaje original               : ", self.mensaje)
-        print("\tMensaje cifrado                : ", self.s)
-        print("\tMensaje cescifrado             : ", self.res)
-        print("\tErrores totales                : ", self.errores)
+        print("\tTamaño del mensaje             :", self.tamano)
+        print("\tNúmero iteraciones solicitadas :", self.num_it)
+        print("\tNúmero iteraciones realizadas  :", self.it_done)
+        print("\tClave privada                  :", self.sk)
+        print("\tClave pública                  :", self.pk)
+        print("\tMensaje original               :", self.mensaje)
+        print("\tMensaje cifrado                :", self.s)
+        print("\tMensaje descifrado             :", self.res)
+        print("\tErrores totales                :", self.errores)
         print()
 
 #------------------------------------------------------------------------------

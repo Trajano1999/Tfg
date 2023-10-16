@@ -153,13 +153,13 @@ class Merkle_Hellman:
         self.comprobar()
 
         print()
-        print("\tTamaño del mensaje : ", self.tamano)
-        print("\tClave privada      : ", self.sk)
-        print("\tClave pública      : ", self.pk)
-        print("\tMensaje original   : ", self.mensaje)
-        print("\tMensaje cifrado    : ", self.s)
-        print("\tMensaje descifrado : ", self.res)
-        print("\tErrores totales    : ", self.errores)
+        print("\tTamaño del mensaje :", self.tamano)
+        print("\tClave privada      :", self.sk)
+        print("\tClave pública      :", self.pk)
+        print("\tMensaje original   :", self.mensaje)
+        print("\tMensaje cifrado    :", self.s)
+        print("\tMensaje descifrado :", self.res)
+        print("\tErrores totales    :", self.errores)
         print()
 
 #------------------------------------------------------------------------------
