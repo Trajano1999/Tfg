@@ -11,25 +11,54 @@ import random
 
 class Shamir:
     # constructor
-    def __init__(self, pk, s, sk=None):
+    def __init__(self, pk, s):
         self.pk      = pk
         self.s       = s
+        self.tamano  = len(pk)
         self.res     = -1
         self.errores = -1
-        self.tamano  = merkle_hellman.tamano                                    # jjj
         self.mensaje = merkle_hellman.mensaje                                   # jjj
-        
-        # obtengo la clave privada en caso de no recibirla
-        if sk is None:
-            self.__obtenerClavePrivada()
-        else:
-            self.sk = sk
+        self.__obtenerClavePrivada()
 
-    # averigua la clave privada (jjj)
-    def __obtenerClavePrivada(self):
+    # comprueba si una sucesión es o no supercreciente
+    def __esSupercreciente(self, suc):
+        n     = len(suc)
+        suma  = 0
+        super = True
+
+        for i in range(0, n-1):
+            suma += suc[i]
+            print("elem : ", suc[i])
+            print()
+            print("suma : ", suma)
+            if(suma >= suc[i+1]):
+                super = False
+                break
+
+        return super
+    
+    # calcula el intervalo intersección
+    def __interseccionIntervalos(self, int1, int2):
+        res = []
+
+        if int1[0] <= int2[0]:
+            res = [int2[0], min(int1[1], int2[1])]
+
+            if(int1[0] == int2[0]):
+                res = [int1[0], min(int1[1], int2[1])]
+
+            if(int1[1] < int2[0]):
+                res = None
+        else:
+            res = self.__interseccionIntervalos(int2, int1)
+                
+        return res
+    
+    # averigua la clave privada
+    def __obtenerClavePrivada(self, M, N):
         self.sk = merkle_hellman.sk
 
-    # descrifra un mensaje                                                      # jjj mismo descrifrado que Merkle-Hellman
+    # descrifra un mensaje
     def descifrar(self):
         n   = self.tamano
         sk  = self.sk

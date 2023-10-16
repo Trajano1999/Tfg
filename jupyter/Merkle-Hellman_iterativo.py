@@ -223,3 +223,7 @@ if __name__ == '__main__':
 
     merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
+
+# jjj
+# 1. Podría hacer que en el cálculo de m, el lim_inf sea igual a la sum_ap cuando sum_ap sea menor al valor sup. Para mejorar eficiencia.
+# 2. Lo que hace que vaya lento es w, que su cálculo se hace probando valores hasta que se consigue el inverso.
