@@ -17,8 +17,6 @@
 import math
 import random
 
-import time # jjj
-
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
 #------------------------------------------------------------------------------
@@ -217,6 +215,15 @@ if __name__ == '__main__':
     merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
 
-# jjj
-# 1. Podría hacer que en el cálculo de m, el lim_inf sea igual a la sum_ap cuando sum_ap sea menor al valor sup. Para mejorar eficiencia.
-# 2. Lo que hace que vaya lento es w, que su cálculo se hace probando valores hasta que se consigue el inverso.
+    skp  = [2882, 343, [851, 1349, 203, 904, 957]]
+    skpp = [3154, 123, [811, 1587, 461, 1698, 2585]]
+    merkle_hellman.descifrar(3245, skpp)
+    print(merkle_hellman.res)
+
+    #sumas = 0
+    #for i in range(0, 100):
+    #    merkle_hellman = Merkle_Hellman(tam, it)
+    #    merkle_hellman.do()
+    #    sumas += merkle_hellman.errores
+    #    print(i)
+    #print("Errores totales de 100 :", sumas)
