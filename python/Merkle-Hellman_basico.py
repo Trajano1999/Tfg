@@ -2,7 +2,7 @@
 
 # Juan Manuel Mateos Pérez
 
-## En este programa estamos simulando el envío de información entre dos usuarios. 
+# En este programa estamos simulando el envío de información entre dos usuarios. 
 # Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada.
 # A continuación, generamos nuestra clave pública partir de la clave privada desarrollada, para que otro usuario J nos envíe la información. 
 # Luego, como usuario J, procederemos con la encriptación del mensaje S = a*x para enviarlo al usuario I.

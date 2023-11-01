@@ -17,6 +17,8 @@
 import math
 import random
 
+import time # jjj
+
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
 #------------------------------------------------------------------------------
@@ -30,6 +32,7 @@ class Merkle_Hellman:
         self.res     = -1
         self.errores = -1
         self.it_done = 0
+        self.sk      = []
 
         # genero el mensaje en caso de no recibirlo
         if mensaje is None:
@@ -41,7 +44,7 @@ class Merkle_Hellman:
         if sk is None:
             self.__generarClavePrivada()
         else:
-            self.sk = sk
+            self.sk.append(sk)
 
         # genero la clave pública
         self.__generarClavePublica()
@@ -96,7 +99,7 @@ class Merkle_Hellman:
                 break
                 
         sk = [m, w, ap]
-        self.sk = sk
+        self.sk.append(sk)
 
     # realiza diversas iteraciones sobre la clave privada
     def __iterarClavePrivada(self):
@@ -115,7 +118,7 @@ class Merkle_Hellman:
                     
             # generamos el valor w (invertible módulo m)
             while True:
-                wp = random.randint(2, m-2)
+                wp  = random.randint(2, m-2)
                 gcd = math.gcd(m, wp)
                 w   = wp // gcd
                 if math.gcd(m, w) == 1:
@@ -123,15 +126,15 @@ class Merkle_Hellman:
 
             it_reales += 1
             sk = [m, w, ap]
-            self.sk = sk
+            self.sk.append(sk)
             self.__generarClavePublica()
 
-        self.it_done = it_reales
-
+        self.it_done = it_reales   
+    
     # genera la clave pública
     def __generarClavePublica(self):
         n  = self.tamano
-        sk = self.sk
+        sk = self.sk[len(self.sk) - 1]
         a  = []
 
         for i in range(0, n):
@@ -153,21 +156,35 @@ class Merkle_Hellman:
 
     # descifra un mensaje
     def descifrar(self):
-        n   = self.tamano
-        sk  = self.sk
-        s   = self.s
-        res = [0 for i in range(n)]
-        
-        # calculamos el inverso modular de w módulo m
-        inv_w = pow(sk[1], -1, sk[0])
+        n         = self.tamano
+        sk        = self.sk
+        s         = self.s
+        res       = [0 for i in range(n)]
+        p         = len(sk) - 1
 
-        # calculamos sp
-        sp = (inv_w * s) % sk[0]
+        while p >= 0:
+            # calculamos el inverso modular de w módulo m
+            inv_w = pow(sk[p][1], -1, sk[p][0])
+
+            # calculamos sp
+            sp = (inv_w * s) % sk[p][0]
+
+            # jjj
+            # print()
+            # print("p    :", p)
+            # print("sk   :", sk[p])
+            # print("inv  :", inv_w)
+            # print("s    :", s)
+            # print("sp   :", sp)
+            # time.sleep(1)
+
+            s = sp
+            p -= 1
 
         # calculamos el resultado
         for i in range(n):
-            if sp >= sk[2][n - 1 - i]:
-                sp -= sk[2][n - 1 - i]
+            if sp >= sk[0][2][n - 1 - i]:
+                sp -= sk[0][2][n - 1 - i]
                 res[n - 1 - i] = 1
         
         self.res = res
@@ -215,15 +232,14 @@ if __name__ == '__main__':
     merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
 
-    skp  = [2882, 343, [851, 1349, 203, 904, 957]]
-    skpp = [3154, 123, [811, 1587, 461, 1698, 2585]]
-    merkle_hellman.descifrar(3245, skpp)
-    print(merkle_hellman.res)
-
-    #sumas = 0
-    #for i in range(0, 100):
+    # jjj
+    # sumas = 0
+    # for i in range(0, 100):
     #    merkle_hellman = Merkle_Hellman(tam, it)
     #    merkle_hellman.do()
     #    sumas += merkle_hellman.errores
     #    print(i)
-    #print("Errores totales de 100 :", sumas)
+    # print("Errores totales de 100 :", sumas)
+
+# jjj 
+# [[2113, 988, [3, 42, 105, 249, 495]], [2882, 343, [851, 1349, 203, 904, 957]], [3154, 123, [811, 1587, 461, 1698, 2585]]]
