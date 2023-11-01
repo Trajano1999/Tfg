@@ -5,8 +5,6 @@
 import math
 import random
 
-import time # jjj
-
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
 #------------------------------------------------------------------------------
@@ -157,15 +155,6 @@ class Merkle_Hellman:
             # calculamos sp
             sp = (inv_w * s) % sk[p][0]
 
-            # jjj
-            # print()
-            # print("p    :", p)
-            # print("sk   :", sk[p])
-            # print("inv  :", inv_w)
-            # print("s    :", s)
-            # print("sp   :", sp)
-            # time.sleep(1)
-
             s = sp
             p -= 1
 
@@ -205,7 +194,6 @@ class Merkle_Hellman:
         print("Mensaje cifrado    :", self.s)
         print("Mensaje descifrado :", self.res)
         print("Errores totales    :", self.errores)
-        print()
 
 #------------------------------------------------------------------------------
 # Main
