@@ -2,6 +2,7 @@
 
 # Juan Manuel Mateos Pérez
 
+## Explicación :
 # En este programa estamos simulando el envío de información entre dos usuarios. 
 # Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada.
 # A continuación, generamos nuestra clave pública partir de la clave privada desarrollada, para que otro usuario J nos envíe la información. 
@@ -9,8 +10,9 @@
 # Finalmente, como usuario I y diseñador, conociendo las claves privadas, aplicaremos el criptosistema de Merkle-Hellman para obtener el mensaje cifrado
 # recibido, comprobando en última instancia si coincidía con el original.
 
-# Para ejecutar el programa solo debemos modificar el valor de tamaño del mensaje en el main (variable tam). Además, podemos comprobar el resultado con
-# valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar en la llamada al constructor. Si no incluimos esos valores, el programa
+## Ejecución :
+# Para ejecutar el programa solo debemos modificar el valor del tamaño del mensaje en el main (variable tam). Además, podemos comprobar el resultado con
+# valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar, en la llamada al constructor. Si no incluimos esos valores, el programa
 # generará otros automáticamente.
 
 import math

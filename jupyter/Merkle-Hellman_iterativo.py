@@ -2,20 +2,6 @@
 
 # Juan Manuel Mateos Pérez
 
-## Explicación :
-# En este programa estamos simulando el envío de información entre dos usuarios. 
-# Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada, y
-# aplicaremos tantas iteraciones como se requieran.
-# A continuación, generamos nuestra clave pública partir de la clave privada desarrollada, para que otro usuario J nos envíe la información. 
-# Luego, como usuario J, procederemos con la encriptación del mensaje S = a*x para enviarlo al usuario I.
-# Finalmente, como usuario I y diseñador, conociendo las claves privadas, aplicaremos el criptosistema de Merkle-Hellman para obtener el mensaje cifrado
-# recibido, comprobando en última instancia si coincidía con el original.
-
-## Ejecución :
-# Para ejecutar el programa solo debemos modificar el valor de tamaño del mensaje en el main (variable tam) y el número de iteraciones de la clave 
-# privada (variable it). Además, podemos comprobar el resultado con valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar 
-# en la llamada al constructor. Si no incluimos esos valores, el programa generará otros automáticamente.
-
 import math
 import random
 
@@ -166,7 +152,7 @@ class Merkle_Hellman:
 
         while p >= 0:
             # calculamos el inverso modular de w módulo m
-            inv_w = pow(sk[p][1], -1, sk[p][0])
+            inv_w = inverse_mod(sk[p][1], sk[p][0])
 
             # calculamos sp
             sp = (inv_w * s) % sk[p][0]
@@ -210,15 +196,15 @@ class Merkle_Hellman:
         self.comprobar()
 
         print()
-        print("\tTamaño del mensaje :", self.tamano)
-        print("\tNum it solicitadas :", self.num_it)
-        print("\tNum it realizadas  :", self.it_done)
-        print("\tClave privada      :", self.sk)
-        print("\tClave pública      :", self.pk)
-        print("\tMensaje original   :", self.mensaje)
-        print("\tMensaje cifrado    :", self.s)
-        print("\tMensaje descifrado :", self.res)
-        print("\tErrores totales    :", self.errores)
+        print("Tamaño del mensaje :", self.tamano)
+        print("Num it solicitadas :", self.num_it)
+        print("Num it realizadas  :", self.it_done)
+        print("Clave privada      :", self.sk)
+        print("Clave pública      :", self.pk)
+        print("Mensaje original   :", self.mensaje)
+        print("Mensaje cifrado    :", self.s)
+        print("Mensaje descifrado :", self.res)
+        print("Errores totales    :", self.errores)
         print()
 
 #------------------------------------------------------------------------------
@@ -233,15 +219,3 @@ if __name__ == '__main__':
 
     merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
-
-    # jjj
-    # sumas = 0
-    # for i in range(0, 100):
-    #    merkle_hellman = Merkle_Hellman(tam, it)
-    #    merkle_hellman.do()
-    #    sumas += merkle_hellman.errores
-    #    print(i)
-    # print("Errores totales de 100 :", sumas)
-
-# jjj 
-# [[2113, 988, [3, 42, 105, 249, 495]], [2882, 343, [851, 1349, 203, 904, 957]], [3154, 123, [811, 1587, 461, 1698, 2585]]]
