@@ -184,16 +184,16 @@ class Merkle_Hellman:
         self.descifrar()
         self.comprobar()
 
-        print()
-        print("Tamaño del mensaje :", self.tamano)
-        print("Num it solicitadas :", self.num_it)
-        print("Num it realizadas  :", self.it_done)
-        print("Clave privada      :", self.sk)
-        print("Clave pública      :", self.pk)
-        print("Mensaje original   :", self.mensaje)
-        print("Mensaje cifrado    :", self.s)
-        print("Mensaje descifrado :", self.res)
-        print("Errores totales    :", self.errores)
+#         print()
+#         print("Tamaño del mensaje :", self.tamano)
+#         print("Num it solicitadas :", self.num_it)
+#         print("Num it realizadas  :", self.it_done)
+#         print("Clave privada      :", self.sk)
+#         print("Clave pública      :", self.pk)
+#         print("Mensaje original   :", self.mensaje)
+#         print("Mensaje cifrado    :", self.s)
+#         print("Mensaje descifrado :", self.res)
+#         print("Errores totales    :", self.errores)
 
 #------------------------------------------------------------------------------
 # Main
