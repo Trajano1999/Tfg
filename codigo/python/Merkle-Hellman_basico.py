@@ -11,9 +11,10 @@
 # recibido, comprobando en última instancia si coincidía con el original.
 
 ## Ejecución :
-# Para ejecutar el programa solo debemos modificar el valor del tamaño del mensaje en el main (variable tam). Además, podemos comprobar el resultado con
-# valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar, en la llamada al constructor. Si no incluimos esos valores, el programa
-# generará otros automáticamente.
+# Para ejecutar el programa solo debemos descomentar el código del main que queramos utilizar. Si descomentamos la primera parte, podremos ejecutar el 
+# programa 1 vez viendo todos los datos. En cambio, si descomentamos la segunda parte, el programa se ejecuta n veces y solo muestra los fallos cometidos.
+# En ambos casos, podemos modificar el valor de tamaño del mensaje (variable tam). Además, podemos comprobar el resultado con valores conocidos añadiendo el
+# mensaje y la clave privada que queramos comprobar en la llamada al constructor. Si no incluimos esos valores, el programa generará otros automáticamente.
 
 import math
 import random
@@ -123,7 +124,7 @@ class Merkle_Hellman:
         s   = self.s
         res = [0 for i in range(n)]
         
-        # calculamos el inverso modular de w módulo m
+        # calculamos el inverso multiplicativo de w módulo m
         inv_w = pow(sk[1], -1, sk[0])
 
         # calculamos sp
@@ -149,12 +150,14 @@ class Merkle_Hellman:
 
         self.errores = sum(vector_dif)
 
-    # aplica todo el criptosistema y muestra los resultados
+    # aplica todo el criptosistema
     def do(self):
         self.cifrar()
         self.descifrar()
         self.comprobar()
 
+    # muestra los resultados del criptosistema
+    def info(self):
         print()
         print("\tTamaño del mensaje :", self.tamano)
         print("\tClave privada      :", self.sk)
@@ -170,9 +173,26 @@ class Merkle_Hellman:
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    tam     = 5
+
+    # descomentar para realizar 1 ejecución aleatoria
+    tam     = random.randint(3, 100)
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
     merkle_hellman = Merkle_Hellman(tam)
     merkle_hellman.do()
+    merkle_hellman.info()
+
+    # descomentar para realizar n ejecuciones aleatorias
+    # n       = 100
+    # errores = 0
+
+    # for i in range(n):
+    #    tam = random.randint(3, 100)
+    #    merkle_hellman = Merkle_Hellman(tam)
+    #    merkle_hellman.do()
+    #    errores += merkle_hellman.errores
+
+    # print()
+    # print("\tErrores totales tras", n, "iteraciones :", errores)
+    # print()

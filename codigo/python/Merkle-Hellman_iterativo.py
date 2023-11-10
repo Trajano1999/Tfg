@@ -12,14 +12,14 @@
 # recibido, comprobando en última instancia si coincidía con el original.
 
 ## Ejecución :
-# Para ejecutar el programa solo debemos modificar el valor de tamaño del mensaje en el main (variable tam) y el número de iteraciones de la clave 
+# Para ejecutar el programa, solo debemos descomentar el código del main que queramos utilizar. Si descomentamos la primera parte, podremos ejecutar el 
+# programa 1 vez viendo todos los datos. En cambio, si descomentamos la segunda parte, el programa se ejecuta n veces y solo muestra los fallos cometidos.
+# En ambos casos, podemos modificar el valor de tamaño del mensaje (variable tam) y el número de iteraciones de la clave 
 # privada (variable it). Además, podemos comprobar el resultado con valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar 
 # en la llamada al constructor. Si no incluimos esos valores, el programa generará otros automáticamente.
 
 import math
 import random
-
-import time # jjj
 
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
@@ -105,18 +105,24 @@ class Merkle_Hellman:
 
     # realiza diversas iteraciones sobre la clave privada
     def __iterarClavePrivada(self):
-        n          = self.tamano
         it_reales  = self.it_done
         it_totales = self.num_it
+        sk         = self.sk
+        p          = 0
 
         while it_totales > it_reales:
+            sucesion = []
+
+            # calculamos el inverso multiplicativo de w módulo m
+            u = pow(sk[p][1], -1, sk[p][0])
+
             # genera la sucesión
-            ap = self.pk
+            for i in sk[p][2]:
+                sucesion.append((i * u) % sk[p][0])
 
             # generamos el valor m
-            lim_inf = 2 ** (2*n + 1) + 1
-            lim_sup = 2 ** (2*n + 2) - 1
-            m  = random.randint(lim_inf, lim_sup)
+            tope = sum(sucesion)
+            m = tope + random.randint(1, tope)
                     
             # generamos el valor w (invertible módulo m)
             while True:
@@ -127,11 +133,17 @@ class Merkle_Hellman:
                     break
 
             it_reales += 1
-            sk = [m, w, ap]
-            self.sk.append(sk)
-            self.__generarClavePublica()
+            p += 1
+            self.sk.append([m, w, sucesion])
+        
+        self.it_done = it_reales
 
-        self.it_done = it_reales   
+        # generamos la clave pública
+        sucesion = []
+        u = pow(sk[p][1], -1, sk[p][0])
+        for i in sk[p][2]:
+            sucesion.append((i * u) % sk[p][0])
+        self.pk = sucesion
     
     # genera la clave pública
     def __generarClavePublica(self):
@@ -158,30 +170,24 @@ class Merkle_Hellman:
 
     # descifra un mensaje
     def descifrar(self):
-        n         = self.tamano
-        sk        = self.sk
-        s         = self.s
-        res       = [0 for i in range(n)]
-        p         = len(sk) - 1
+        n      = self.tamano
+        sk     = self.sk
+        s      = self.s
+        num_it = self.num_it
+        res    = [0 for i in range(n)]
+        p      = len(sk) - 1
 
-        while p >= 0:
-            # calculamos el inverso modular de w módulo m
-            inv_w = pow(sk[p][1], -1, sk[p][0])
+        if num_it == 0:
+            # calculamos el inverso multiplicativo de w módulo m
+            inv_w = pow(sk[0][1], -1, sk[0][0])
 
             # calculamos sp
-            sp = (inv_w * s) % sk[p][0]
-
-            # jjj
-            # print()
-            # print("p    :", p)
-            # print("sk   :", sk[p])
-            # print("inv  :", inv_w)
-            # print("s    :", s)
-            # print("sp   :", sp)
-            # time.sleep(1)
-
-            s = sp
-            p -= 1
+            sp = (inv_w * s) % sk[0][0]
+        else:
+            while p >= 0:
+                sp = (s * sk[p][1]) % sk[p][0]
+                s = sp
+                p -= 1
 
         # calculamos el resultado
         for i in range(n):
@@ -203,12 +209,14 @@ class Merkle_Hellman:
 
         self.errores = sum(vector_dif)
 
-    # aplica todo el criptosistema y muestra los resultados
+    # aplica todo el criptosistema
     def do(self):
         self.cifrar()
         self.descifrar()
         self.comprobar()
 
+    # muestra los resultados del criptosistema
+    def info(self):
         print()
         print("\tTamaño del mensaje :", self.tamano)
         print("\tNum it solicitadas :", self.num_it)
@@ -226,22 +234,28 @@ class Merkle_Hellman:
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    tam     = 5
-    it      = 0
+    
+    # descomentar para realizar 1 ejecución aleatoria
+    tam     = random.randint(3, 100)
+    it      = random.randint(0, 3)
     mensaje = [0, 0, 0, 1, 1]
     sk      = [2113, 988, [3, 42, 105, 249, 495]]
 
     merkle_hellman = Merkle_Hellman(tam, it)
     merkle_hellman.do()
+    merkle_hellman.info()
 
-    # jjj
-    # sumas = 0
-    # for i in range(0, 100):
+    # descomentar para realizar n ejecuciones aleatorias
+    # n       = 100
+    # errores = 0
+
+    # for i in range(n):
+    #    tam = random.randint(3, 100)
+    #    it  = random.randint(0, 3)
     #    merkle_hellman = Merkle_Hellman(tam, it)
     #    merkle_hellman.do()
-    #    sumas += merkle_hellman.errores
-    #    print(i)
-    # print("Errores totales de 100 :", sumas)
+    #    errores += merkle_hellman.errores
 
-# jjj 
-# [[2113, 988, [3, 42, 105, 249, 495]], [2882, 343, [851, 1349, 203, 904, 957]], [3154, 123, [811, 1587, 461, 1698, 2585]]]
+    # print()
+    # print("\tErrores totales tras", n, "iteraciones :", errores)
+    # print()
