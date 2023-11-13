@@ -234,7 +234,9 @@ class Merkle_Hellman:
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    
+
+    print("\n\tMerkle-Hellman iterativo")
+
     # descomentar para realizar 1 ejecución aleatoria
     tam     = random.randint(3, 100)
     it      = random.randint(0, 3)

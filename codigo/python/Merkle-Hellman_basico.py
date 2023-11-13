@@ -174,6 +174,8 @@ class Merkle_Hellman:
 
 if __name__ == '__main__':
 
+    print("\n\tMerkle-Hellman básico")
+
     # descomentar para realizar 1 ejecución aleatoria
     tam     = random.randint(3, 100)
     mensaje = [0, 0, 0, 1, 1]
