@@ -19,6 +19,8 @@
 # programa generará otros automáticamente.
 # (2) Si por otro lado descomentamos la segunda parte, el programa se ejecutará n veces y mostrará un desglose de iteraciones, tamaños y errores
 # cometidos. En este caso podemos modificar la variable n, que indica la cantidad de criptosistemas que se van a ejecutar.
+# (3) Finalmente, si descomentamos la tercera parte, el programa ejecuta una función que mide el tiempo medio de ejecución tras ejecutar el criptosistema
+# n veces. Aquí, se puede modificar el tamaño del mensaje (variable tam) y el número de ejecuciones totales (variable p).
 
 import math
 import random
@@ -287,13 +289,10 @@ def medirTiempos(tam, p):
         merkle_hellman1.descifrar()
         fin1 = time.time()
         tiempo_medio1 += fin1 - inicio1
+        merkle_hellman1.comprobar()
 
         # calculamos densidad
         densidad1 = merkle_hellman1.tamano / math.log(max(merkle_hellman1.pk), 2)
-        
-        # sumamos errores
-        merkle_hellman1.comprobar()
-        errores1 += merkle_hellman1.errores
         
         # con 3 iteraciones de sk
         merkle_hellman2 = Merkle_Hellman(tam, 3, merkle_hellman1.mensaje, merkle_hellman1.sk[0])
@@ -304,13 +303,10 @@ def medirTiempos(tam, p):
         merkle_hellman2.descifrar()
         fin2 = time.time()
         tiempo_medio2 += fin2 - inicio2
+        merkle_hellman2.comprobar()
 
         # calculamos densidad
         densidad2 = merkle_hellman2.tamano / math.log(max(merkle_hellman2.pk), 2)
-
-        # sumamos errores
-        merkle_hellman2.comprobar()
-        errores2 += merkle_hellman2.errores
 
     tiempo_medio1 /= p
     tiempo_medio2 /= p
@@ -320,14 +316,12 @@ def medirTiempos(tam, p):
     print("Ejecuciones     :", p)
     print("Tiempo medio    :", tiempo_medio1)
     print("Densidad        :", densidad1)
-    print("Errores totales :", errores1)
 
     print("Tamaño          :", tam)
     print("Iteraciones sk  : 3")
     print("Ejecuciones     :", p)
     print("Tiempo medio    :", tiempo_medio2)
     print("Densidad        :", densidad2)
-    print("Errores totales :", errores2)
     print()
 
 #------------------------------------------------------------------------------
@@ -351,14 +345,6 @@ if __name__ == '__main__':
     # variasIteraciones(n)
 
     # ---------- descomentar para medir tiempos de n ejecuciones aleatorias ----------
-    medirTiempos(5, 20)
-    # medirTiempos(25, 20)
-    # medirTiempos(50, 20)
-    # medirTiempos(75, 20)
-    # medirTiempos(100, 20)
-
-    # medirTiempos(5, 100)
-    # medirTiempos(25, 100)
-    # medirTiempos(50, 100)
-    # medirTiempos(75, 100)
-    # medirTiempos(100, 100)
+    # tam = 100
+    # n   = 10
+    # medirTiempos(tam, n)
