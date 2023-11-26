@@ -4,20 +4,21 @@
 
 ## Explicación :
 # En este programa estamos simulando el envío de información entre dos usuarios. 
-# Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada, y
-# aplicaremos tantas iteraciones como se requieran.
+# Primero, hacemos de usuario I (diseñador) y generamos a partir del tamaño del mensaje, los valores iniciales m, w y ap, que forman la clave privada,
+# aplicando tantas iteraciones como se requieran.
 # A continuación, generamos nuestra clave pública partir de la clave privada desarrollada, para que otro usuario J nos envíe la información. 
 # Luego, como usuario J, procederemos con la encriptación del mensaje S = a*x para enviarlo al usuario I.
 # Finalmente, como usuario I y diseñador, conociendo las claves privadas, aplicaremos el criptosistema de Merkle-Hellman para obtener el mensaje cifrado
 # recibido, comprobando en última instancia si coincidía con el original.
 
 ## Ejecución :
-# Para ejecutar el programa, solo debemos descomentar el código del main que queramos utilizar. Si descomentamos la primera parte, podremos ejecutar el 
-# programa 1 vez viendo todos los datos. En cambio, si descomentamos la segunda parte, el programa se ejecuta n veces y solo muestra los fallos cometidos.
-# En el primer caso, podemos modificar el tamaño del mensaje (variable tam) y el número de iteraciones de la clave privada (variable it). Además, podemos
-# comprobar el resultado con valores conocidos añadiendo el mensaje y la clave privada que queramos comprobar en la llamada a la función (unaIteracion). 
-# Si no incluimos esos valores, el programa generará otros automáticamente. En el segundo caso, la variable n indica la cantidad de criptosistemas que 
-# se van a ejecutar.
+# Para ejecutar el programa, solo debemos descomentar el código del main que queramos utilizar:
+# (1) Si descomentamos la primera parte, podremos ejecutar el programa 1 vez y veremos todos los datos necesarios. Asimismo, podemos modificar el valor
+# del tamaño del mensaje (variable tam) y el número de iteraciones de la clave privada (variable it). Además, podemos comprobar el resultado con valores
+# conocidos añadiendo el mensaje y la clave privada que queramos comprobar en la llamada a la función (unaIteracion). Si no incluimos estos valores, el
+# programa generará otros automáticamente.
+# (2) Si por otro lado descomentamos la segunda parte, el programa se ejecutará n veces y mostrará un desglose de iteraciones, tamaños y errores
+# cometidos. En este caso podemos modificar la variable n, que indica la cantidad de criptosistemas que se van a ejecutar.
 
 import math
 import random
@@ -61,7 +62,7 @@ class Merkle_Hellman:
         n = self.tamano
         mensaje = []
 
-        for i in range(0, n):
+        for i in range(n):
             mensaje.append(random.randint(0,1))
 
         self.mensaje = mensaje
@@ -152,7 +153,7 @@ class Merkle_Hellman:
         sk = self.sk[len(self.sk) - 1]
         a  = []
 
-        for i in range(0, n):
+        for i in range(n):
             a.append((sk[1] * sk[2][i]) % sk[0])
         
         self.pk = a
@@ -164,7 +165,7 @@ class Merkle_Hellman:
         mensaje = self.mensaje
         s       = 0
 
-        for i in range(0, n):
+        for i in range(n):
             s += mensaje[i] * pk[i]
         
         self.s = s
@@ -205,7 +206,7 @@ class Merkle_Hellman:
         mensaje_obtenido = self.res
         vector_dif = []
 
-        for i in range(0, n):
+        for i in range(n):
             vector_dif.append(abs(mensaje_original[i] - mensaje_obtenido[i]))
 
         self.errores = sum(vector_dif)
@@ -232,6 +233,7 @@ class Merkle_Hellman:
 # Datos de salida
 #------------------------------------------------------------------------------
 
+# ejecuta y muestra los datos tras aplicar una iteración
 def unaIteracion(tam, it, mensaje=None, sk=None):
     if mensaje is not None and sk is not None:
         merkle_hellman = Merkle_Hellman(tam, it, mensaje, sk)
@@ -240,6 +242,7 @@ def unaIteracion(tam, it, mensaje=None, sk=None):
     merkle_hellman.do()
     merkle_hellman.info()
 
+# ejecuta y muestra los datos tras aplicar n iteraciones
 def variasIteraciones(n):
     errores_totales = 0
 

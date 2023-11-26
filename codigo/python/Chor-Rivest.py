@@ -1,6 +1,8 @@
-# Criptosistema de Merkle-Hellman básico
+# Criptosistema de Chor-Rivest
 
 # Juan Manuel Mateos Pérez
+
+# jjj
 
 ## Explicación :
 # En este programa estamos simulando el envío de información entre dos usuarios. 
@@ -11,33 +13,36 @@
 # recibido, comprobando en última instancia si coincidía con el original.
 
 ## Ejecución :
-# Para ejecutar el programa, solo debemos descomentar el código del main que queramos utilizar:
-# (1) Si descomentamos la primera parte, podremos ejecutar el programa 1 vez y veremos todos los datos necesarios. Asimismo, podemos modificar el valor
-# del tamaño del mensaje (variable tam), e incluso podemos comprobar el resultado con valores conocidos añadiendo el mensaje y la clave privada que 
-# queramos comprobar en la llamada a la función (unaIteracion). Si no incluimos estos valores, el programa generará otros automáticamente. 
-# (2) Si por otro lado descomentamos la segunda parte, el programa se ejecutará n veces y mostrará un desglose de iteraciones, tamaños y errores
-# cometidos. En este caso podemos modificar la variable n, que indica la cantidad de criptosistemas que se van a ejecutar.
+# Para ejecutar el programa solo debemos descomentar el código del main que queramos utilizar. Si descomentamos la primera parte, podremos ejecutar el 
+# programa 1 vez viendo todos los datos. En cambio, si descomentamos la segunda parte, el programa se ejecuta n veces y solo muestra los fallos cometidos.
+# En el primer caso, podemos modificar el valor del tamaño del mensaje (variable tam). Además, podemos comprobar el resultado con valores conocidos añadiendo 
+# el mensaje y la clave privada que queramos comprobar en la llamada a la función (unaIteracion). Si no incluimos esos valores, el programa generará otros 
+# automáticamente. En el segundo caso, la variable n indica la cantidad de criptosistemas que se van a ejecutar.
 
 import math
 import random
 
 #------------------------------------------------------------------------------
-# Clase Merkle_Hellman
+# Clase Chor_Rivest
 #------------------------------------------------------------------------------
 
-class Merkle_Hellman:
+class Chor_Rivest:
     # constructor
     def __init__(self, tamano, mensaje=None, sk=None):
-        self.tamano  = tamano
-        self.s       = -1
-        self.res     = -1
-        self.errores = -1
+        self.tamano     = tamano
+        self.cifrado    = -1
+        self.h          =  0
+        self.descifrado = -1
+        self.errores    = -1
 
         # genero el mensaje en caso de no recibirlo
         if mensaje is None:
             self.__generaMensaje()
         else:
             self.mensaje = mensaje
+            for i in mensaje:
+                if i == 1:
+                    self.h += 1
         
         # genero la clave privada en caso de no recibirla
         if sk is None:
@@ -51,92 +56,56 @@ class Merkle_Hellman:
     # genera un mensaje aleatorio
     def __generaMensaje(self):
         n = self.tamano
+        h = 0
         mensaje = []
 
         for i in range(n):
-            mensaje.append(random.randint(0,1))
+            val = random.randint(0, 1)
+            if val == 1: 
+                h += 1
+            mensaje.append(val)
 
+        self.h = h
         self.mensaje = mensaje
-
-    # genera una sucesión supercreciente
-    def __generaSucesionSC(self):
-        n = self.tamano
-        sucesion = []
-
-        for i in range(1, n+1):
-            ap = random.randint(((2**(i-1))-1) * (2**n) + 1, (2**(i-1)) * (2**n))
-            sucesion.append(ap)
-
-        return sucesion
     
-    # genera la clave privada
+    # genera la clave privada jjj
     def __generarClavePrivada(self):
         n = self.tamano
+        self.sk = n
 
-        # generamos la sucesión supercreciente
-        ap = self.__generaSucesionSC()
-        sum_ap = sum(ap)
-
-        # generamos el valor m
-        lim_inf = 2 ** (2*n + 1) + 1 
-        lim_sup = 2 ** (2*n + 2) - 1
-        while True:
-            m  = random.randint(lim_inf, lim_sup)
-            if m > sum_ap:                                          
-                break
-        
-        # generamos el valor w (invertible módulo m)
-        while True:
-            wp  = random.randint(2, m-2)
-            gcd = math.gcd(m, wp)
-            w   = wp // gcd
-            if math.gcd(m, w) == 1:
-                break
-                
-        sk = [m, w, ap]
-        self.sk = sk
-
-    # genera la clave pública
+    # genera la clave pública jjj
     def __generarClavePublica(self):
         n  = self.tamano
         sk = self.sk
         a  = []
 
-        for i in range(n):
+        for i in range(0, n):
             a.append((sk[1] * sk[2][i]) % sk[0])
         
         self.pk = a
 
     # cifra un mensaje
     def cifrar(self):
-        n       = self.tamano
+        q       = self.tamano
+        h       = self.h
         pk      = self.pk
         mensaje = self.mensaje
-        s       = 0
+        cifrado = 0
 
-        for i in range(n):
-            s += mensaje[i] * pk[i]
+        for i in range(q):
+            cifrado += (mensaje[i] * pk[i]) % (q**h - 1)
         
-        self.s = s
+        self.cifrado = cifrado
 
-    # descifra un mensaje
+    # descifra un mensaje jjj
     def descifrar(self):
-        n   = self.tamano
-        sk  = self.sk
-        s   = self.s
-        res = [0 for i in range(n)]
-        
-        # calculamos el inverso multiplicativo de w módulo m
-        inv_w = pow(sk[1], -1, sk[0])
+        q       = self.tamano
+        h       = self.h
+        sk      = self.sk
+        cifrado = self.cifrado
 
-        # calculamos sp
-        sp = (inv_w * s) % sk[0]
+        y_prima = cifrado - (h * sk[3]) % (q**h - 1)
 
-        # calculamos el resultado
-        for i in range(n):
-            if sp >= sk[2][n - 1 - i]:
-                sp -= sk[2][n - 1 - i]
-                res[n - 1 - i] = 1
         
         self.res = res
 
@@ -170,39 +139,37 @@ class Merkle_Hellman:
         print()
 
 #------------------------------------------------------------------------------
-# Datos de salida
+# Datos de salida jjj
 #------------------------------------------------------------------------------
 
-# ejecuta y muestra los datos tras aplicar una iteración
-def unaIteracion(tam, mensaje=None, sk=None):
-    if mensaje is not None and sk is not None:
-        merkle_hellman = Merkle_Hellman(tam, mensaje, sk)
-    else:
-        merkle_hellman = Merkle_Hellman(tam)
-    merkle_hellman.do()
-    merkle_hellman.info()
+# def unaIteracion(tam, mensaje=None, sk=None):
+#     if mensaje is not None and sk is not None:
+#         merkle_hellman = Merkle_Hellman(tam, mensaje, sk)
+#     else:
+#         merkle_hellman = Merkle_Hellman(tam)
+#     merkle_hellman.do()
+#     merkle_hellman.info()
 
-# ejecuta y muestra los datos tras aplicar n iteraciones
-def variasIteraciones(n):
-    errores_totales = 0
+# def variasIteraciones(n):
+#     errores_totales = 0
 
-    print("Iteración \t Tamaño Vector \t Número Errores")
-    for i in range(n):
-        errores = 0
-        print(i+1, end="")
+#     print("Iteración \t Tamaño Vector \t Número Errores")
+#     for i in range(n):
+#         errores = 0
+#         print(i+1, end="")
     
-        tam = random.randint(3, 100)
-        print("\t\t", tam, end="")
+#         tam = random.randint(3, 100)
+#         print("\t\t", tam, end="")
 
-        merkle_hellman = Merkle_Hellman(tam)
-        merkle_hellman.do()
+#         merkle_hellman = Merkle_Hellman(tam)
+#         merkle_hellman.do()
         
-        errores += merkle_hellman.errores
-        print("\t\t", errores)
-        errores_totales += errores
+#         errores += merkle_hellman.errores
+#         print("\t\t", errores)
+#         errores_totales += errores
 
-    print("\nErrores totales tras", n, "iteraciones :", errores_totales)
-    print()
+#     print("\nErrores totales tras", n, "iteraciones :", errores_totales)
+#     print()
 
 #------------------------------------------------------------------------------
 # Main
@@ -210,8 +177,12 @@ def variasIteraciones(n):
 
 if __name__ == '__main__':
 
-    print("\nMerkle-Hellman básico")
+    print("\nChor-Rivest")
     print()
+
+    chor_rivest = Chor_Rivest(5)
+    chor_rivest.do()
+    chor_rivest.info()
 
     # ---------- descomentar para realizar 1 ejecución aleatoria ----------
     # tam     = random.randint(3, 100)
