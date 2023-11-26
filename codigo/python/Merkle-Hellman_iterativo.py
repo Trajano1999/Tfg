@@ -352,13 +352,13 @@ if __name__ == '__main__':
 
     # ---------- descomentar para medir tiempos de n ejecuciones aleatorias ----------
     medirTiempos(5, 20)
-    medirTiempos(25, 20)
-    medirTiempos(50, 20)
-    medirTiempos(75, 20)
-    medirTiempos(100, 20)
+    # medirTiempos(25, 20)
+    # medirTiempos(50, 20)
+    # medirTiempos(75, 20)
+    # medirTiempos(100, 20)
 
-    medirTiempos(5, 100)
-    medirTiempos(25, 100)
-    medirTiempos(50, 100)
-    medirTiempos(75, 100)
-    medirTiempos(100, 100)
+    # medirTiempos(5, 100)
+    # medirTiempos(25, 100)
+    # medirTiempos(50, 100)
+    # medirTiempos(75, 100)
+    # medirTiempos(100, 100)
