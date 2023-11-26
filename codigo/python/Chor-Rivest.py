@@ -1,8 +1,6 @@
 # Criptosistema de Chor-Rivest
 
-# Juan Manuel Mateos Pérez
-
-# jjj
+# Juan Manuel Mateos Pérez # jjj
 
 ## Explicación :
 # En este programa estamos simulando el envío de información entre dos usuarios. 
@@ -19,7 +17,6 @@
 # el mensaje y la clave privada que queramos comprobar en la llamada a la función (unaIteracion). Si no incluimos esos valores, el programa generará otros 
 # automáticamente. En el segundo caso, la variable n indica la cantidad de criptosistemas que se van a ejecutar.
 
-import math
 import random
 
 #------------------------------------------------------------------------------
@@ -51,7 +48,7 @@ class Chor_Rivest:
             self.sk = sk
         
         # genero la clave pública
-        self.__generarClavePublica()
+        # self.__generarClavePublica()
 
     # genera un mensaje aleatorio
     def __generaMensaje(self):
@@ -70,19 +67,14 @@ class Chor_Rivest:
     
     # genera la clave privada jjj
     def __generarClavePrivada(self):
-        n = self.tamano
-        self.sk = n
+        vector = self.mensaje
+        vector.append(self.tamano)
+        vector.append(self.h)
+        self.sk = vector
 
     # genera la clave pública jjj
     def __generarClavePublica(self):
-        n  = self.tamano
-        sk = self.sk
-        a  = []
-
-        for i in range(0, n):
-            a.append((sk[1] * sk[2][i]) % sk[0])
-        
-        self.pk = a
+        self.pk = [1, 0, 1, 1]
 
     # cifra un mensaje
     def cifrar(self):
@@ -106,14 +98,11 @@ class Chor_Rivest:
 
         y_prima = cifrado - (h * sk[3]) % (q**h - 1)
 
-        
-        self.res = res
-
     # calcula el número de fallos del resultado
     def comprobar(self):
         n = self.tamano
         mensaje_original = self.mensaje
-        mensaje_obtenido = self.res
+        mensaje_obtenido = self.descifrado
         vector_dif = []
 
         for i in range(n):
@@ -130,10 +119,10 @@ class Chor_Rivest:
     # muestra los resultados del criptosistema
     def info(self):
         print("Clave privada      :", self.sk)
-        print("Clave pública      :", self.pk)
+        #print("Clave pública      :", self.pk)
         print("Mensaje original   :", self.mensaje)
-        print("Mensaje cifrado    :", self.s)
-        print("Mensaje descifrado :", self.res)
+        print("Mensaje cifrado    :", self.cifrado)
+        print("Mensaje descifrado :", self.descifrado)
         print("Tamaño del mensaje :", self.tamano)
         print("Errores totales    :", self.errores)
         print()
@@ -181,9 +170,10 @@ if __name__ == '__main__':
     print()
 
     chor_rivest = Chor_Rivest(5)
-    chor_rivest.do()
+    #chor_rivest.do()
     chor_rivest.info()
 
+    # jjj
     # ---------- descomentar para realizar 1 ejecución aleatoria ----------
     # tam     = random.randint(3, 100)
     # mensaje = [0, 0, 0, 1, 1]
