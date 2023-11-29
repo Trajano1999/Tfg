@@ -20,7 +20,8 @@
 # (2) Si por otro lado descomentamos la segunda parte, el programa se ejecutará n veces y mostrará un desglose de iteraciones, tamaños y errores
 # cometidos. En este caso podemos modificar la variable n, que indica la cantidad de criptosistemas que se van a ejecutar.
 # (3) Finalmente, si descomentamos la tercera parte, el programa ejecuta una función que mide el tiempo medio de ejecución tras ejecutar el criptosistema
-# n veces. Aquí, se puede modificar el tamaño del mensaje (variable tam) y el número de ejecuciones totales (variable p).
+# n veces, con 0 y 3 iteraciones de clave privada, respectivamente. Aquí, se puede modificar el tamaño del mensaje (variable tam) y el número de 
+# ejecuciones totales (variable p).
 
 import math
 import random
@@ -274,8 +275,6 @@ def variasIteraciones(n):
 def medirTiempos(tam, p):
     tiempo_medio1 = 0
     tiempo_medio2 = 0
-    errores1 = 0
-    errores2 = 0
     densidad1 = 0
     densidad2 = 0
         
@@ -316,7 +315,7 @@ def medirTiempos(tam, p):
     print("Ejecuciones     :", p)
     print("Tiempo medio    :", tiempo_medio1)
     print("Densidad        :", densidad1)
-
+    print()
     print("Tamaño          :", tam)
     print("Iteraciones sk  : 3")
     print("Ejecuciones     :", p)
@@ -330,7 +329,7 @@ def medirTiempos(tam, p):
 
 if __name__ == '__main__':
 
-    print("\nMerkle-Hellman iterativo")
+    print("\nCriptosistema de Merkle-Hellman iterativo")
     print()
 
     # ---------- descomentar para realizar 1 ejecución aleatoria ----------
@@ -345,6 +344,6 @@ if __name__ == '__main__':
     # variasIteraciones(n)
 
     # ---------- descomentar para medir tiempos de n ejecuciones aleatorias ----------
-    # tam = 100
-    # n   = 10
-    # medirTiempos(tam, n)
+    tam = 100
+    n   = 10
+    medirTiempos(tam, n)

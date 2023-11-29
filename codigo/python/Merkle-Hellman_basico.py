@@ -210,7 +210,7 @@ def variasIteraciones(n):
 
 if __name__ == '__main__':
 
-    print("\nMerkle-Hellman básico")
+    print("\nCriptosistema de Merkle-Hellman básico")
     print()
 
     # ---------- descomentar para realizar 1 ejecución aleatoria ----------
