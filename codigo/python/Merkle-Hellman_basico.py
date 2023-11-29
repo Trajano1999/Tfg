@@ -160,8 +160,8 @@ class Merkle_Hellman:
 
     # muestra los resultados del criptosistema
     def info(self):
-        print("Clave privada      :", self.sk)
         print("Clave pública      :", self.pk)
+        print("Clave privada      :", self.sk)
         print("Mensaje original   :", self.mensaje)
         print("Mensaje cifrado    :", self.s)
         print("Mensaje descifrado :", self.res)
