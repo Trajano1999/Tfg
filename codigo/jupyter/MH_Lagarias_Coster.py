@@ -62,7 +62,7 @@ class Merkle_Hellman:
         n = self.tamano
         mensaje = []
 
-        for i in range(0, n):
+        for i in range(n):
             mensaje.append(random.randint(0,1))
 
         self.mensaje = mensaje
@@ -206,7 +206,7 @@ class Merkle_Hellman:
         mensaje_obtenido = self.res
         vector_dif = []
 
-        for i in range(0, n):
+        for i in range(n):
             vector_dif.append(abs(mensaje_original[i] - mensaje_obtenido[i]))
 
         self.errores = sum(vector_dif)
@@ -219,14 +219,12 @@ class Merkle_Hellman:
 
     # muestra los resultados del criptosistema
     def info(self):
-        print()
-        print("\tTamaño del mensaje :", self.tamano)
-        print("\tNum it solicitadas :", self.num_it)
-        print("\tNum it realizadas  :", self.it_done)
-        print("\tClave privada      :", self.sk)
-        print("\tClave pública      :", self.pk)
-        print("\tMensaje original   :", self.mensaje)
-        print("\tMensaje cifrado    :", self.s)
-        print("\tMensaje descifrado :", self.res)
-        print("\tErrores totales    :", self.errores)
+        print("Clave pública      :", self.pk)
+        print("Clave privada      :", self.sk)
+        print("Mensaje original   :", self.mensaje)
+        print("Mensaje cifrado    :", self.s)
+        print("Mensaje descifrado :", self.res)
+        print("Tamaño del mensaje :", self.tamano)
+        print("Número iteraciones :", self.it_done)
+        print("Errores totales    :", self.errores)
         print()

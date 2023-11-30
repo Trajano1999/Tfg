@@ -22,7 +22,6 @@
 
 import math
 import random
-import time
 
 #------------------------------------------------------------------------------
 # Clase Merkle_Hellman
