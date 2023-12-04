@@ -12,6 +12,4 @@ Este directorio contiene el código de la memoria del TFG.
 
     `make open`
 
-Finalmente, para limpiar todos los archivos utilizados usaremos :
-
-`make clean`
+Finalmente, para limpiar todos los archivos utilizados usaremos : `make clean`
