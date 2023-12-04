@@ -19,12 +19,12 @@
 
 % Redefinición del estilo para mostrar las referencias cruzadas en la bibliografía.
 \renewcommand*{\backref}[1]{}
-\renewcommand*{\backrefalt}[4]{{\footnotesize [%
-    \ifcase #1 No citado%
-    \or Citado en pág.~#2%
-    \else Citado en págs. #2%
-    \fi%
-]}}
+% \renewcommand*{\backrefalt}[4]{{\footnotesize [%
+%     \ifcase #1 No citado%
+%     \or Citado en pág.~#2%
+%     \else Citado en págs. #2%
+%     \fi%
+% ]}}
 
 % Etiquetas en español para el comando \autoref
 \def\chapterautorefname{Capítulo}
@@ -44,3 +44,6 @@
 
 % Pone automáticamente un parántesis para las ecuaciones
 \def\equationautorefname~#1\null{Ecuación ~(#1)\null}
+
+% Numera automáticamente la ecuación que se referencia con \eqref{eq:nombre}
+\newcommand{\myequation}[1]{\begin{equation}\tag*{(#1)}}

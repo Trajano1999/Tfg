@@ -1,0 +1,139 @@
+\chapter{Criptosistema de Chor-Rivest} \label{ch:sexto-capitulo}
+    
+    En el presente capítulo, dirigiremos nuestra atención hacia el criptosistema de Chor-Rivest. Estudiaremos este sistema de cifrado, veremos su implementación y analizaremos su robustez ante los ataques vistos. Para el desarrollo de este capítulo, se han utilizado fundamentalmente las siguientes bibliografías: \cite{artChorRivest} y \cite{artQuanChorRivest}.
+    
+    \section{Introducción}
+    
+    Como ya sabemos, en $1976$, Diffie y Hellman introdujeron la idea de los criptosistemas de clave pública (PKC's), para los cuales se utilizan dos claves diferentes: una para cifrar y otra para descifrar. Además, conocemos el objetivo de ambas claves: cada usuario mantiene en secreto su clave de descifrado al mismo tiempo que hace pública su clave de cifrado, de modo que pueda ser utilizada por cualquier persona que desee enviarle un mensaje.
+    
+    Tras esta idea, aparecieron las primeras implementaciones de sistemas criptográficos de clave pública. Las dos primeras fueron: Merkle-Hellman y Rivest-Shamir-Adleman (RSA). Con el tiempo, aparecieron nuevas ideas, pero en general, todas las implementaciones hasta $1988$ podían agruparse en los siguientes dos grupos:
+    \begin{enumerate}
+        \item PKC's basados en problemas teórico-numéricos difíciles, como RSA, Goldwasser-Micali o Rabin.
+        \item PKC's basados en el problema de la mochila, como Merkle-Hellman o Shamir.
+    \end{enumerate}
+    En lo que respecta a los primeros, no se conocían ataques eficientes. Sin embargo, ya por esa época el criptosistema de Merkle-Hellman había sido comprometido por el ataque de Shamir. Incluso, se empezaron a proponer nuevas implementaciones de ataques contra los PKC's basados en el problema de la mochila, los cuales comenzaron a resultar inseguros.
+    
+    Por si no fuera suficiente, en $1985$ se publicó uno de los algoritmos protagonistas del capítulo \ref{ch:quinto-capitulo}, el ataque de Lagarias-Odlyzko. Como hemos explicado, este ataque es distinto a todos los anteriores, ya que no realiza ninguna suposición sobre cómo se construye el criptosistema y, por tanto, puede aplicarse a cualquier sistema criptográfico de tipo mochila cuya densidad sea baja.
+    
+    \section{Preludio al criptosistema}
+    
+    Presentamos en esta sección, el nuevo criptosistema de tipo mochila \cite{artChorRivest}, que posee una alta densidad y una base completamente distinta al resto de PKC's basados en el mismo problema. La construcción subyacente utiliza un resultado de R.C. Bose y S. Chowla \cite{artBoseChowla} sobre representaciones únicas de sumas en secuencias finitas "densas".
+    
+    El método de generación de claves requiere computar logaritmos discretos en cuerpos finitos. Una vez este paso sea realizado, el cifrado es muy rápido (tiempo lineal) y el descifrado también es razonablemente rápido (equivalente a RSA). Por tanto, la creación de claves es el paso más complicado, y aunque no se conocen algoritmos para calcular logaritmos discretos en tiempo polinómico, sí se conocen algoritmos prácticos para algunos casos particulares (por ejemplo, el algoritmo de Pohlig-Hellman \cite{artPohligHellman}). 
+    
+    Es importante mencionar que todos los PKC's basados en problemas teórico-numéricos conocidos por entonces, eran como máximo, tan difíciles como la factorización, y por lo tanto, todos eran reducibles al problema de tomar logaritmos discretos en módulos compuestos. De este modo, en caso de que el problema del logaritmo discreto se volviese manejable (provocando que todos los PKC's basados en problemas teórico-numéricos fuesen inseguros), la creación de este sistema sería más sencilla, incluso para tamaños de mochilas mayores.
+    
+    En su momento, los autores creyeron que un sistema de este tamaño sería capaz de frustrar tanto los ataques de baja densidad como los de búsqueda exhaustiva. Sin embargo, $10$ años después de su publicación en $1988$, Vaudenay publicó un artículo \cite{artVaudenay} en el que recuperaba mensajes cifrados por este método usando algoritmos operativos con tiempo de ejecución polinomial, para un rango de parámetros bastante grande (incluyendo los propuestos por Chor y Rivest). A pesar de esto, actualmente se considera seguro para otros rangos de parámetros.
+    
+    \section{Descripción del criptosistema}
+    
+    Procedemos a continuación a explicar paso a paso el método de Chor-Rivest basado en el problema de la mochila. Comenzamos con el algoritmo de generación de claves, para posteriormente explicar el cifrado y descifrado del método. Veremos que el tamaño de la clave en este criptosistema depende del tamaño de los parámetros considerados originalmente.
+
+    \begin{algorithm}[H]
+        \caption{Algoritmo de generación de claves de Chor-Rivest}
+        \textbf{Input:} Potencia de un primo $q = p^{\lambda}$, y entero positivo $h \leq q$, de manera que el cálculo de logaritmos en $\mathbb{F}_{q^{h}}$ pueda realizarse eficientemente (por ejemplo, tomando $q$ de forma que el orden de $\mathbb{F}_{q^{h}}$ tenga solamente factores primos pequeños \cite{artPohligHellman}). \\
+        \textbf{Output:} Clave pública $pk$ y clave privada $sk$.
+        \bigskip
+        \begin{algorithmic}[1] 
+            \State Elegir una raiz $t \in \mathbb{F}_{q^{h}}$ de un polinomio mónico irreducible de grado $h$, $F(x) \in \mathbb{F}_{q}[x]$. Cualquier elemento de $\mathbb{F}_{q^{h}}$ puede representarse como un polinomio en $t$ con grado $\leq h$ y coeficientes en $\mathbb{F}_{q}$.
+            \State Seleccionar un generador $g$, del grupo multiplicativo $\mathbb{F}^{*}_{q^{h}}$. Cabe destacar, que el orden de $\mathbb{F}^{*}_{q^{h}}$ es $n = q^{h} - 1$.
+            \State Calcular los siguientes $q$ logaritmos:
+            \begin{equation}
+                a_{i} = log_{g} (t + \alpha_{i})
+            \end{equation}
+            para todo $\alpha_{i} \in \mathbb{F}_{q}$, $0 \leq i \leq q - 1$.
+            \State Reordenar los elementos $a_{i}$ por una permutación aleatoria:
+            \begin{equation}
+                \pi : \{0, 1, ... , q-1\} \rightarrow \{0, 1, ... , q-1\}
+            \end{equation}
+            de manera que $b_{i} = a_{\pi(i)}$.
+            \State Generar ruido, considerando un número entero elegido al azar $0 \leq r \leq q^{h} - 2$, y luego:
+            \begin{equation}
+                c_{i} \equiv (b_{i} + r) \text{ mod } (q^{h} - 1) \text{, con } i = 0, 1, ... , q - 1 
+            \end{equation}
+            \State Revelar la clave pública $pk = (c_{0}, ... , c_{q-1}, q, h)$ y esconder la clave privada $sk = (t, g, \pi, r)$.
+        \end{algorithmic}
+    \end{algorithm}
+    
+    \begin{algorithm}[H]
+        \caption{Algoritmo de cifrado de Chor-Rivest}
+        \textbf{Input:} Mensaje $m = (x_{0}, ... , x_{q-1})$ con exactamente $h$ bits a $1$ y clave pública $pk = (c_{0}, ... , c_{q-1}, q, h)$.\\
+        \textbf{Output:} Mensaje cifrado $y$.
+        \bigskip
+        \begin{algorithmic}[1]
+            \State Calcular el correspondiente mensaje cifrado aplicando:
+            \begin{equation}
+                y = \sum_{i=0}^{q-1} x_{i} \cdot c_{i} \text{ }( \text{mod } q^{h} - 1)
+            \end{equation}
+            \State Devolver el mensaje cifrado $y$.
+        \end{algorithmic}
+    \end{algorithm}
+    
+    \begin{algorithm}[H]
+        \caption{Algoritmo de descifrado de Chor-Rivest}
+        \textbf{Input:} Mensaje cifrado $y$ (suponiendo que proviene de un mensaje de $q$ bits con peso $h$) y clave privada $sk = (t, g, \pi, r)$.\\
+        \textbf{Output:} Mensaje descifrado $m = (x_{0}, ... , x_{q-1})$ con exactamente $h$ bits a $1$.
+        \bigskip
+        \begin{algorithmic}[1]
+            \State Calcular:
+            \begin{equation}
+                y' \equiv y - h \cdot r \text{ } ( \text{mod } q^{h} - 1).
+            \end{equation}
+            \State Obtener $g^{y'}$ escrito como polinomio en $x$. Existe un único polinomio $Q(x) \in \mathbb{F}_{q^{h}}[x]$ con grado $\leq h-1$, tal que:
+            \begin{equation}
+                Q(x) \equiv g^{y'} \text{ } ( \text{mod } F(x))
+            \end{equation}
+            Sea $I = \{i_{1} < \cdot \cdot \cdot < i_{h}\}$ el conjunto de índices con los bits correspondientes igual a $1$, esto es, $x_{i_{1}} = \cdot \cdot \cdot = x_{i_{h}} = 1$, entonces:
+            \begin{equation}
+                g^{y'} = g^{y} \cdot g^{-hr} = g^{\sum_{i=0}^{q-1} x_{i}c_{i}} \cdot g^{-hr} = \prod_{i \in I} g^{c_{i} - r} = \prod_{i \in I} g^{b_{i}} = \prod_{i \in I} g^{a_{\pi(i)}} = \prod_{i \in I} (t + \alpha_{\pi(i)})
+            \end{equation}
+            \State Como el polinomio de grado $h$, $F(x) + Q(x)$ factoriza linealmente en el cuerpo $\mathbb{F}_{q}$, entonces:
+            \begin{equation}
+                F(x) + Q(x) = \prod_{i \in I} (x + \alpha_{\pi(i)})
+            \end{equation}
+            \State Sustituir los valores $\alpha_{0}, ... , \alpha_{q-1} \in \mathbb{F}_{q}$ para obtener las $h$ raices de ese polinomio. Además, si las raices son $\alpha_{j1}, ... , \alpha_{jh}$, entonces aplicando la permutación inversa $\pi^{-1}$ a esos índices de raíces, $\pi^{-1}(j_{l}) = i_{l}$, se obtienen los subíndices del mensaje con términos iguales a $1$.
+            \State Devolver el mensaje obtenido $m = (x_{0}, ... , x_{q-1})$.
+        \end{algorithmic}
+    \end{algorithm}
+    
+    \section{Análisis del criptosistema}
+    
+    Como ya hemos comentado, existen varios ataques conocidos para vulnerar el criptosistema de Chor-Rivest, pero en la práctica solo tienen éxito para los parámetros originalmente propuestos por los autores. A continuación, mencionamos algunos de ellos.
+    
+    Chor y Rivest \cite{artChorRivest} describen tanto ataques especializados, donde el atacante conoce partes de la clave secreta del destinatario, como el diseñado por Goldreich y Odlyzko; como ataques generales, donde solo se conoce la clave pública. Entre estos últimos, se incluyen el ataque de fuerza bruta diseñado por Brickell \cite{atBrickell}, los ataques por baja densidad al problema de la mochila como el realizado por Lagarias y Odlyzko \cite{artLagOdl}, y otros como el de Schnorr y Hörner \cite{atSchnorrHorner}.
+
+    Las parejas de parámetros $(q, h)$ propuestas originalmente por Chor-Rivest fueron $(197, 24)$, $(211, 24)$, $(3^{5}, 24)$ y $(2^{8}, 25)$, cuyo número de dígitos son $56$, $56$, $58$ y $60$. Si el número de cifras es suficientemente pequeño, el ataque de Schnorr-Hörner es capaz de romper el criptosistema.
+
+    Tal y como hemos indicado, Vaudenay fue el primero en romperlo realmente para un conjunto mucho más amplio de parámetros (incluidos los propuestos por los autores). Su ataque es remarcable, ya que utiliza el hecho de que el criptosistema de Chor-Rivest tiene claves secretas equivalentes, y es capaz de recuperar una de ellas. Una clave equivalente, por lo general, difiere de la clave secreta original pero funciona de la misma manera. Todos los usuarios pueden usar los mismos valores para $q$ y $h$, ya que el riesgo de colisiones, es decir, que dos usuarios tengan la misma contraseña, es extremadamente bajo.
+
+    En realidad, como la clave privada está formada por el conjunto $\{t, g, \pi, r\}$, existen:
+    \begin{equation}
+        h \cdot \phi(q^{h} - 1) \cdot (q^{h} - 2) \cdot q!
+    \end{equation}
+    diferentes claves privadas, de las cuales:
+    \begin{equation}
+        h \cdot q(q - 1)
+    \end{equation}
+    son equivalentes. Donde hemos denotado como $\phi$ a la función de Euler. Por tanto, el número de claves no equivalentes es:
+    \begin{equation}
+        n_{q,h} = \phi(q^{h} - 1) \cdot (q^{h} - 2) \cdot (q - 2)!
+    \end{equation}
+    Así, \cite{artQuanChorRivest} explica que para $k$ usuarios, el número de colisiones posibles es:
+    \begin{equation}
+        \frac{(n_{q,h} - 1)(n_{q,h} - 2) \cdot \cdot \cdot (n_{q,h} - k + 1)}{n^{k}_{q,h}} \leq \frac{1}{n_{q,h}}
+    \end{equation}
+    que sabemos por su cota, que es un valor pequeño. Por ejemplo, para la pareja de parámetros $q = 197$ y $h = 24$, obtenemos que su número máximo de colisiones es $\leq 0.16155 \cdot 10^{-472}$.
+
+    En resumen, todos los ataques descritos son capaces de romper el criptosistema de Chor-Rivest solamente para los parámetros originales y para parámetros que tienen ciertas propiedades (como el caso de Vaudenay). Esto abre la puerta a explorar nuevos parámetros situados en rangos más amplios, o seleccionados específicamente para eludir los ataques conocidos.
+
+    En el artículo \cite{artQuanChorRivest}, se menciona que se pueden hallar distintos pares de parámetros $(q, h)$ que verifican las condiciones establecidas por Chor-Rivest y que refuerzan la resistencia del criptosistema ante los ataques conocidos. Verifican las siguientes condiciones:
+    \begin{enumerate}
+        \item $2 \leq h \leq q$, con $q$ un número primo, y $h$ un número primo o el cuadrado de un número primo.
+        \item El número de dígitos de $n$ debe ser $t(q, h) \geq 36$.
+        \item La longitud en bits de la clave pública debe satisfacer $l(q, h) < 15.000$.
+        \item La densidad de la mochila debe ser $d(q, h) > 1$.
+        \item $u(n)$ debe tener como máximo $18$ dígitos decimales.
+    \end{enumerate}
+    Finalmente, remarcamos que la pareja $(1123, 13)$ forma la clave pública de mayor tamaño, del orden de $150$ kilobits.
+    
+\endinput

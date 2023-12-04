@@ -1,0 +1,349 @@
+\chapter{Criptosistema de Merkle-Hellman} \label{ch:tercer-capitulo}
+
+    El propósito de este capítulo es abordar de manera clara las diversas variantes del criptosistema de Merkle-Hellman, desde sus fundamentos teóricos hasta sus aplicaciones prácticas. Para lograrlo, haremos uso de los conceptos presentados en los capítulos previos, además de consultar las siguientes fuentes de referencia: \cite{artMH}, \cite{artOd} y \cite{artTiwari}.
+    
+    \section{Introducción}
+    
+    El criptosistema de Merkle-Hellman es uno de los primeros criptosistemas de clave pública y fue desarrollado en la década de $1970$ por Ralph C. Merkle y Martin E. Hellman. Este sistema de clave pública basado en el problema de la mochila, ha cautivado el interés de investigadores y entusiastas de la seguridad durante décadas debido a su simplicidad y elegancia. En este capítulo, describiremos el criptosistema de Merkle-Hellman, desvelando sus principios fundamentales y descubriendo cómo su ingenioso diseño permite el cifrado y descifrado de mensajes.
+    
+    Nuestra explicación comienza con una clara y concisa descripción de los conceptos clave que sustentan el criptosistema. Posteriormente, explicaremos distintos algoritmos de construcción de claves, donde veremos cómo se forja el candado y la llave que garantizará la confidencialidad de nuestros mensajes. Además, durante el proceso de cifrado, apreciaremos cómo una secuencia aparentemente aleatoria de números, transforma nuestros mensajes en datos ilegibles ante los ojos no autorizados.
+
+    A medida que desentrañemos los misterios del criptosistema de Merkle-Hellman, su relevancia en el panorama actual de la ciberseguridad se volverá evidente. Aunque más adelante, destacaremos las debilidades que tiene e introduciremos los ataques más relevantes que ha recibido, tales como el ataque de Adi Shamir, entre otros.
+
+    \section{Preludio al criptosistema} \label{sec:3.2}
+
+    El criptosistema de Merkle-Hellman es uno de los primeros criptosistemas de clave pública que se crearon y el primero que se publicó basado en el problema de la mochila. Sus autores, Ralph C. Merkle y Martin E. Hellman, como ya hemos comentado, lo desarrollaron en la década de los $1970$, publicando su artículo concretamente en el año $1978$.
+
+    En este artículo nos explican que dada una supuesta solución al problema $x$ se puede comprobar fácilmente si es solución o no, en un máximo de $n$ iteraciones, pero se sospecha que encontrar una solución requiere un número de operaciones que crece exponencialmente en $n$. Esto nos estaría confirmando que se trata de un problema NP-completo y por tanto uno de los problemas computacionales más difíciles de naturaleza criptográfica. Es más, aplicando la fuerza bruta o la búsqueda exhaustiva por ensayo y error de todas las $2^n$ posibles soluciones $x$, es computacionalmente inviable su cálculo cuando $n$ es mayor a $100$ ó $200$.
+
+    Los autores explican en su artículo, que en $1978$ ya se conocía un método para resolver problemas de mochilas que requería una complejidad de $2^{n/2}$, tanto en tiempo de computación como en memoria de almacenamiento. Asimismo, también explican que R. Schroeppel ideó un algoritmo que requiere una complejidad de $2^{n/2}$ en tiempo y $2^{n/4}$ de espacio. Sin embargo, esto depende en gran medida de la elección de los valores iniciales de $a$. Procedemos así a realizar la primera definición del capítulo.
+
+    \begin{definicion} \cite{artOd}
+        Diremos que una sucesión $\{a_i\}_{i=1}^{n}$ es \textit{supercreciente} si verifica que:
+        \begin{equation} \label{eq:supercreciente}
+            a_{i} > \sum_{j=1}^{i-1} a_{j} \text{ , para } i = 2, ... , n
+        \end{equation}
+    \end{definicion}
+
+    \begin{ejemplo}
+        La sucesión $\{a_{n}\} = 1, 3, 8, 16, 30, 64, 143, 270, ...$ forma una sucesión supercreciente puesto que:
+        \begin{align}
+            a_{2} = 3  &> a_{1} = 1 \\ 
+            a_{3} = 8  &> \sum_{i=1}^{2} a_{i} = 3 + 1 = 4 \\
+            a_{4} = 16 &> \sum_{i=1}^{3} a_{i} = 4 + 8 = 12 \\
+            &\hspace{0.2cm}\vdots
+        \end{align}
+    \end{ejemplo}
+    
+    Diremos que una \textit{mochila con trampilla} es un problema de la mochila en la que una cuidadosa elección de los valores $a$, permite al diseñador del problema resolver fácilmente cualquier solución $x$, pero impide que cualquier otro usuario la encuentre.
+
+    \newpage
+    
+    Distinguimos entonces varios casos según la elección que hagamos de $a$:
+    \begin{enumerate}
+        \item Si $a = (1, 2, 4, ... , 2^{n-1})$, entonces resolver $x$ equivale a buscar la representación binaria de $S$.
+        \item Si $a$ es un sucesión supercreciente con $n$ elementos, también es fácil hallar $x$ ya que cumple el siguiente algoritmo:
+            \begin{align}
+                x_{n} = 1 &\iff S \geq a_{n} \\
+                x_{i} = 1 &\iff S \geq a_{i} + \sum_{j=i+1}^{n} a_{j}x_{j} \text{ ,~para } i = n-1, ... , 1
+            \end{align}
+        \item Si $a$ es una sucesión de $n$ elementos formada eventualmente por números primos, también es fácil hallar $x$, ya que los valores de la sucesión $a$ puede que dividan a la capacidad total de la mochila $S$.
+    \end{enumerate}
+    
+    A continuación, vamos a proceder a explicar varios métodos para construir mochilas con trampilla y explicaremos como se utilizan para el envío de información. 
+    
+    Por un lado, el primero de ellos será la búsqueda de \textit{mochilas con trampillas aditivas}. En este primer método, la capacidad total de la mochila $S$ debe expresarse como suma de los valores de la clave pública $a$. La idea de este tipo de mochilas con trampilla es usar la propiedad que tienen las sucesiones supercrecientes para obtener el mensaje $x$.
+    
+    Por otro lado, describiremos también el método de construcción de \textit{mochilas con trampillas multiplicativas}. En este caso, la capacidad total de la mochila $S$ se expresa como producto de valores del vector $a'$, que está formado eventualmente por números primos. Un punto importante de este apartado, es que una mochila multiplicativa se transforma en una mochila aditiva tomando logaritmos. Para que ambos vectores tengan valores razonables, tal y como se explica en \cite{artPohligHellman}, los logaritmos se toman sobre $GF(m)$, donde $m$ es el número primo tomado como clave privada. La idea es obtener $S'$ y utilizar los valores primos del vector $a'$ para obtener el mensaje $x$.
+
+    Finalmente, describiremos el \textit{método iterativo} que consiste en una combinación de los métodos vistos. En este caso, la idea es aplicar reiteradas veces uno o ambos de los métodos explicados, conseguiendo de esta forma aumentar la seguridad del mensaje $x$.
+
+    \section{Descripción del criptosistema}
+
+    En primer lugar dejemos claro nuestro objetivo: buscamos un método para establecer una comunicación segura y confidencial entre dos partes, en la que se garantice que los mensajes transmitidos no puedan ser leídos ni interpretados por terceros no autorizados.
+
+    Con esto en la cabeza, comencemos la explicación de \cite{artMH}. La idea es que un usuario $I$ genere un vector mochila con trampilla $a(I)$. Esto no es más que una clave que él puede utilizar para encontrar fácilmente la solución, que usará como clave pública. Cuando otro usuario $J$ quiera mandarle un mensaje $x$ al usuario $I$, deberá enviarle el mensaje $S$ encriptado, usando la clave pública de $I$. Por tanto, $J$ debe enviar el mensaje cifrado $S = x \cdot a(I)$. De esta forma, el destinatario $I$ puede recuperar $x$ a partir de $S$, gracias a $a(I)$, pero nadie más podrá. Recordemos que habíamos escogido un vector mochila con trampilla $a(I)$ justamente para que el usuario $I$ sí que pueda encontrar la solución $x$ a partir de $S$. Procedemos por tanto, a explicar el método para construir mochilas con trampilla aditivas, multiplicativas y mediante iteración. 
+    
+    \subsection{Método de construcción de mochilas con trampilla aditivas} \label{sec:3.3.1}
+    
+    En primer lugar, el diseñador debe elegir dos números, $m$ y $w$ tal que $w$ sea invertible módulo $m$, o lo que es lo mismo, que $gcd(w,m) = 1$; o que $m$ y $w$ sean coprimos. Es crucial que estos dos números sean secretos y sólo los conozca el propio diseñador.
+
+    Los datos iniciales estan formados por los dos valores previos $m$ y $w$, y una sucesión supercreciente $a'$ generada por el diseñador, también secreta y conocida únicamente por él. El propósito a continuación, es descifrar el mensaje $x$ a partir de la información recibida $S = a \cdot x$. Sin embargo, la idea es aplicar una transformación al mensaje recibido para obtener $S' = a' \cdot x`$. De esta forma, una vez conozcamos $S'$, podremos hayar el mensaje $x$. La ventaja de esta transformación es que al ser $a'$ una sucesión supercreciente, permitirá al diseñador resolver el problema de manera más sencilla y eficiente.
+
+    Mostramos este pequeño esquema a modo de resumen:
+    \begin{align}
+        &\text{Datos generados: } m, w \text{ (valores coprimos) y } a' \text{ (sucesión supercreciente)}\\
+        &\text{Datos recibidos: } S \text{ (mensaje cifrado)}\\
+        &\text{Datos objetivo: } a \text{ (clave pública) y } S' \text{ (mensaje transformado)}
+    \end{align}
+    
+    Para ello, el diseñador usará los valores $m$, $w$ y $a'$ para obtener la clave pública $a$, que será revelada para que cualquier persona que desee enviarnos mensajes pueda utilizarla para cifrarlos; y usará $m$, $w$ y $S$ para obtener $S'$, que representa la alteración del mensaje recibido.
+    
+    Vamos a explicar como obtener la clave pública $a$. Para ello, el diseñador debe elegir un vector $a'$, de tamaño $n$, que sea una sucesión supercreciente. Ahora, debe transformar el vector $a'$ en un vector mochila con trampilla $a$ de la siguiente forma:
+    \begin{equation}
+        a_{i} \equiv w \cdot a'_{i} \text{ mod } m \text{ , con } i = 1, ... , n
+    \end{equation}
+    Como los $a_{i}$ están distribuidos pseudoaleatoriamente, cualquiera que conozca $a$ pero no conozca ni $w$ ni $m$, tendrá grandes dificultades para resolver un problema de mochila que incluya $a$. En cambio, el diseñador sí que podrá calcular $S'$ de manera sencilla:
+    
+    \begin{align}    
+        S' &= w^{-1} \cdot S \text{ mod } m \\
+           &= w^{-1} \sum_{i=1}^{n} x_{i} \cdot a_{i}  \text{ mod } m \\
+           &= w^{-1} \sum_{i=1}^{n} x_{i} \cdot w \cdot a'_{i}  \text{ mod } m \\
+           &= \sum_{i=1}^{n} x_{i} \cdot a'_{i}  \text{ mod } m
+    \end{align}
+    Así, si $m$ verifica que $m > \sum_{i=1}^{n} a'_{i}$, entonces se verifica que $S' = \sum_{i=1}^{n} x_{i} \cdot a'_{i}$.
+    
+    Finalmente, hemos logrado la transformación del problema en la forma $S' = a' \cdot x$, lo que nos facilita enormemente la resolución de $x$ debido a que $a'$ es una sucesión supercreciente y podemos aplicar sus propiedades vistas en el apartado \ref{sec:3.2}. Esto es exactamente lo que estábamos buscando desde el principio y, por supuesto, coincide con el mensaje original. 
+
+    Mostramos ahora un ejemplo con un tamaño muy pequeño con el objetivo de aclarar las ideas aquí explicadas.
+
+    \begin{ejemplo} \label{ej:3.3}
+        Sea $n = 5$. Tomemos $m = 2113$, $w = 988$ y $a' = (3, 42, 105, 249, 495)$. Entonces, podemos calcular $w^{-1} = 802$, con la operación inverso modular y gracias a la operación vista antes, obtenemos $a = (851, 1349, 203, 904, 957)$.
+        
+        Ahora, supongamos que un usuario quisiera mandarnos el mensaje $x = (0, 0, 0, 1, 1)$. Para ello, ese usuario emisor debe realizar el producto escalar de $x$, con nuestra clave pública $a$, obteniendo $S = 1861$. Así, una vez que el emisor nos envíe el valor de $S$, el diseñador ya podrá calcular $S'$ de la siguiente forma:
+        \begin{align}
+            S' &= w^{-1} \cdot S \text{ mod } m \\
+               &= 802 \cdot 1861 \text{ mod } 2113 \\
+               &= 744 
+        \end{align}
+        Por tanto, como $S' = a' \cdot x$ y $a'$ es una sucesión supercreciente, aplicamos lo visto a este tipo de suceciones:
+        \begin{align}
+            S' = 744 &\geq a'_{5} = 495 \Rightarrow x_{5} = 1 \\
+            S' = 744 &\geq a'_{5} + a'_{4} = 744 \Rightarrow x_{4} = 1 \\
+            S' = 744 &\not\geq a'_{5} + a'_{4} + a'_{3} = 849 \Rightarrow x_{3} = 0 \\
+            &\hspace{0.2cm}\vdots
+        \end{align}
+
+        \newpage
+        
+        Tras realizar esto sucesivamente, obtenemos como solución $x = (0, 0, 0, 1, 1)$, que era justamente el mensaje original. Podemos comprobarlo viendo que se verifica:
+        \begin{equation}
+            S = a \cdot x = 851 \cdot 0 + 1349 \cdot 0 + 203 \cdot 0 + 904 \cdot 1 + 957 \cdot 1 = 1861
+        \end{equation}
+    \end{ejemplo}
+
+    En este ejemplo se puede ver como cualquiera que no conozca los valores de $m$, $w$ y $a'$ tiene grandes problemas para obtener el mensaje $x$, aunque el vector $a$ sea público para todo el mundo.
+
+    \begin{observacion}
+        Merkle y Hellman indican en su artículo \cite{artMH} los valores que ellos recomiendan y consideran seguros para este criptosistema. Son los siguientes: 
+        \begin{itemize}
+            \item $n = 100$
+            \item $m \in [2^{201} + 1, 2^{202} - 1]$
+            \item $a'_{i} \in [(2^{i-1} - 1) \cdot 2^{100} + 1, 2^{i-1} \cdot 2^{100}]$, con $i = 1, ... , 100$
+            \item $w' \in [2, m-2]$.
+        \end{itemize}
+        Luego $w'$ debe dividirse por el máximo común divisor de $w'$ y $m$ para para obtener $w$.
+    \end{observacion}
+    
+    Además, explican en su publicación que estas elecciones garantizan que se cumpla la siguiente condición: $m>\sum_{i=1}^{n} a'_{i}$, y que en caso de que alguien intente descifrarlo, tenga al menos $2^{100}$ posibilidades por cada parámetro, lo que hace que sea muy difícil descrifrarlo o incluso intentar encontrar uno solo de estos parámetros.
+        
+    \subsection{Método de construcción de mochilas con trampilla multiplicativas}
+
+    Al igual que en el método anterior de las mochilas con trampilla aditiva, el diseñador en primer lugar debe elegir dos números coprimos $m$ y $b$. Vuelve a ser crucial que estos dos números sean secretos y sólo los conozca el propio diseñador.
+    
+    De manera muy similar al método anterior, el propósito es descubrir el mensaje $x$. Por tanto, se debe transformar el sistema $S = a \cdot x$ en otro donde $a'$ actúe como una sucesión con valores eventualmente primos de la siguiente forma: $S' = a' \cdot x'$. Esta transformación permitirá resolver el problema de manera más sencilla y eficiente.
+
+    Mostramos este pequeño esquema a modo de resumen:
+    \begin{align}
+        &\text{Datos generados: } m, b \text{ (valores coprimos) y } a' \text{ (sucesión de primos eventuales)}\\
+        &\text{Datos recibidos: } S \text{ (mensaje cifrado)}\\
+        &\text{Datos objetivo: } a \text{ (clave pública) y } S' \text{ (mensaje transformado)}
+    \end{align}
+    
+    Para ello, el diseñador usará los valores $m$, $b$ y $a'$ para obtener la clave pública $a$, y podrá además, obtener $S'$ a partir de $m$, $b$ y $S$. Expliquemos primero cómo obtener la clave pública. Para ello, se debe elegir un vector $a'$, de tamaño $n$, que esté formado eventualmente por números primos. Posteriormente, se debe
+    transformar este vector $a'$ en un vector mochila con trampilla $a$, tal que cada $a_{i}$ verifique lo siguiente:
+    \begin{gather*}
+        b^{a_{i}} \text{ mod } m = a'_{i}
+        \\ \Updownarrow \\ 
+        b^{a_{i}} = y \cdot m + a'_{i}
+        \\ \Updownarrow \\ 
+        a_{i} \cdot ln(b) = ln(y \cdot m + a'_{i})
+        \\ \Updownarrow \\ 
+        a_{i} = \frac{ln(y \cdot m + a'_{i})}{ln(b)}
+    \end{gather*}
+    $\text{ con } y \in \mathbb{N} \text{, } i = 1, ... , n$ y $ln(b) \neq 0$, es decir, $b \neq 1$. 
+    
+    Encontrar logaritmos sobre $GF(m)$ es relativamente fácil si $m - 1$ sólo tiene factores primos pequeños. A continuación, para calcular $S'$, debemos aplicar: 
+    \begin{align}
+        S' &= b^{S} \text{ mod } m \\
+           &= b^{\sum a_{i} \cdot x_{i}} \text{ mod } m \\
+           &= \prod_{i=1}^{n} b^{a_{i} \cdot x_{i}} \text{ mod } m \\
+           &= \prod_{i=1}^{n} a_{i}^{'x_{i}} \text{ mod } m  
+    \end{align}
+    Así, es necesario que se verifique $m > \prod a'_{i}$, para asegurar que $\prod a'_{i} \cdot x_{i} \text{ mod } m = \prod a'_{i} \cdot x_{i}$.
+
+    Finalmente, hemos logrado la transformación del problema en la forma $S' = a' \cdot x$, lo que nos facilita enormemente la resolución de $x$ debido a que $a'$ es una sucesión con valores eventualmente primos y podemos descomponer $S'$ en los valores de esta sucesión. Esto es exactamente lo que estábamos buscando desde el principio y de nuevo, coincide con el mensaje original.
+    
+    Mostramos a continuación un pequeño ejemplo que nos ayude a aclarar las ideas explicadas.
+
+    \newpage
+    
+    \begin{ejemplo}
+        Sea $n = 5$. Tomamos $m = 257$, $b = 131$ y $a' = (2, 3, 5, 7, 11)$. Entonces, calculamos la clave pública $a$, de la forma ya explicada: 
+        \begin{align}
+            &131^{80} \text{ mod } 257 = 2 \Rightarrow a_{1} = 80 \\
+            &131^{183} \text{ mod } 257 = 3 \Rightarrow a_{2} = 183 \\
+            &131^{81} \text{ mod } 257 = 5 \Rightarrow a_{3} = 81 \\
+            &131^{195} \text{ mod } 257 = 7 \Rightarrow a_{4} = 195 \\
+            &131^{28} \text{ mod } 257 = 11 \Rightarrow a_{5} = 28
+        \end{align}
+        Obtenemos entonces $a = (80, 183, 81, 195, 28)$. Ahora, supongamos que un usuario quisiera mandarnos el mensaje $x = (0, 1, 1, 0, 1)$. Para ello, ese usuario emisor debe realizar el producto escalar de $x$, con nuestra clave pública $a$, obteniendo $S = 292$. De esta forma, una vez que el emisor nos envíe el valor de $S$, el diseñador ya podrá calcular $S'$ gracias a la información de trampilla $m$ y $b$ de la siguiente forma:
+        \begin{align}
+            S' &= b^{S} \text{ mod } m \\
+               &= 131^{292} \text{ mod } 257 \\
+               &= 165 \\
+               &= 2^{0} \cdot 3^{1} \cdot 5^{1} \cdot 7^{0} \cdot 11^{1} 
+        \end{align}
+        Esto implica que $x = (0, 1, 1, 0, 1)$, que era justamente el mensaje original. Podemos comprobarlo viendo que se verifica:
+        \begin{equation}
+            S = a \cdot x = 80 \cdot 0 + 183 \cdot 1 + 81 \cdot 1 + 195 \cdot 0 + 28 \cdot 1 = 292      
+        \end{equation}
+    \end{ejemplo}
+
+    En este ejemplo se puede ver como cualquiera que no conozca los valores de $m$, $b$ y $a'$ tiene grandes problemas para obtener el mensaje $x$, aunque el vector $a$ sea público para todo el mundo.
+
+    \begin{observacion}
+        Merkle y Hellman indican en su artículo \cite{artMH} los valores que ellos recomiendan y consideran seguros para este criptosistema. Tomando $n = 100$, cada $a'_{i}$ es un número primo de $100$ bits de tamaño, por lo que $m$ debe tener tamaño de $10000$ bits aproximados para que se verifique $m > \prod a'_{i}$. En realidad, se puede verificar la condición incluso si $m$ tiene un tamaño de $730$ bits, pero recomiendan el valor de $10000$ bits.
+    \end{observacion}
+
+    \subsection{Método iterativo}
+
+    Recordemos que en el primer método de mochilas con trampilla explicado, transformábamos un problema de la mochila aparentemente sencillo $a'$ en uno más complicado $a$. En este caso, para generar un nuevo  vector, usaremos la siguiente expresión:
+    \begin{equation}
+        a'_{i} \equiv w^{-1} \cdot a_{i} \text{ mod } m
+    \end{equation}
+    La idea, como explicábamos en el apartado \ref{sec:3.3.1}, es que podemos resolver el problema que envuelve a $a$ porque podemos resolver el problema que envuelve a $a'$. Sin embargo, en vez de exigir que $a'$ sea una sucesión supercreciente, como imponíamos en el primer apartado, basta con exigir que $a'$ sea transformable en una sucesión supercreciente $a''$ según la transformación:
+    \begin{equation}
+        a''_{i} \equiv w'^{-1} \cdot a'_{i} \text{ mod } m'
+    \end{equation}
+    donde el nuevo problema de la mochila obtenido $a''$, es una sucesión supercreciente igualmente fácil de resolver. Habiendo aplicado esta transformación dos veces, no hay problema en aplicarla una tercera, una cuarta o una quinta vez. Así, es claro que podemos repetir este proceso tanto como queramos. A cada transformación que aplicamos, la estructura del vector $a$ conocido públicamente se vuelve más ``oscura''. 
+    
+    En esencia, estamos encriptando el vector simple de la mochila mediante la aplicación repetida de una transformación que preserva la estructura básica del problema. Finalmente, el último resultado obtenido es aparentemente una colección de números aleatorios que enmascara totalmente el hecho de que el problema puede resolverse de manera sencilla. Veamos un ejemplo de este método para entenderlo.
+
+    \begin{ejemplo}
+        Para que resulte más sencillo, escogeremos los mismos valores que en el ejemplo \ref{ej:3.3}, solo que aplicaremos dos iteraciones. Por tanto, tomamos $n = 5$, $m'' = 2113$, $w'' = 988$ y $a''' = (3, 42, 105, 249, 495)$. Por organización, mostramos la clave privada a cada iteración. En este caso, está formada por:
+        \begin{align}
+            &m'' = 2113 \\
+            &w'' = 988 \\
+            &a''' = (3, 42, 105, 249, 495)
+        \end{align}
+        A continuación, obtenemos el inverso multiplicativo $w''^{-1} = u'' = 802$. Este valor es necesario para obtener el siguiente vector $a''$, que se calcula según la fórmula:
+        \begin{equation} \label{eq:3.1}
+            a''_{i} \equiv u'' \cdot a'''_{i} \text{ mod } m''
+        \end{equation}
+        Aplicandola, obtenemos $a'' = (293, 1989, 1803, 1076, 1859)$. Con esto, hemos concluido la primera iteración. Generamos a continuación los nuevos valores $m$ y $w$, que son: $m' = 9889$, $w' = 9662$. La clave privada de esta iteración es por tanto:
+        \begin{align}
+            &m' = 9889 \\
+            &w' = 9662 \\
+            &a'' = (293, 1989, 1803, 1076, 1859)
+        \end{align}
+        Tras calcular el inverso modular $u' = 4095$, volvemos a aplicar la expresión \eqref{eq:3.1}, obteniendo $a' = (3266, 6308, 6091, 5615, 7964)$. Finalmente debemos obtener la clave pública, por lo que debemos generar nuevos $m$ y $w$. Así, $m = 33418$ y $w = 1025$. La nueva clave privada es:
+        \begin{align}
+            &m = 33418 \\
+            &w = 1025 \\
+            &a' = (3266, 6308, 6091, 5615, 7964)
+        \end{align}
+        Por último, tras calcular $u = 2217$, obtenemos que la clave pública es:
+        \begin{equation}
+            a = (22434, 16112, 2875, 16959, 11484)
+        \end{equation}
+        Tras este proceso de generación de claves, supongamos que nos quieren enviar el mensaje $(0, 0, 0, 1, 1)$. Como ya sabemos, el emisor debe cifrarlo con la clave pública $a$, por lo que obtendrá $S = 28443$. Para descifrarlo, debemos aplicar las claves privadas de manera inversa hasta obtener el mensaje original. Así, comenzamos aplicando la última clave privada al valor $S$ recibido:
+        \begin{align}
+            S' &= S \cdot w \text{ mod } m \\
+            &= 28443 \cdot 1025 \text{ mod } 33418 = 13579
+        \end{align}
+        Reiterando este proceso por cada clave privada, obtenemos:
+        \begin{align}
+            S'' &= S' \cdot w' \text{ mod } m' \\
+            &= 13579 \cdot 9662 \text{ mod } 9889 = 2935 \\
+            S''' &= S'' \cdot w'' \text{ mod } m'' \\
+            &= 2935 \cdot 988 \text{ mod } 2113 = 744
+        \end{align}
+        Por último, debemos aplicar el proceso de desencriptado explicado en el ejemplo de mochilas aditivas al valor $S'''$ obtenido. El resultado final es $(0, 0, 0, 1, 1)$, que coincide con el mensaje original enviado.
+    \end{ejemplo}
+
+    Tras este ejemplo, llegamos a una importante definición, con la que debemos familiarizarnos ya que trataremos con ella durante todo el resto del trabajo.
+    
+    \begin{definicion} \cite{artLagOdl} \label{def:3.8}
+        Sea $a = (a_{1}, ... , a_{n})$ un vector de pesos, definimos la \textit{densidad del vector} $a$ como:
+        \begin{equation}
+            d(a) = \frac{n}{log_{2}(max_{i} a_{i})} \text{ , con } i = 1, ... , n
+        \end{equation}
+        En términos de criptosistemas de mochila con clave pública, este valor es una medida aproximada de la tasa de información a la que se transmiten los bits, es decir:
+        \begin{equation}
+            d(a) \cong \frac{\text{Número de bits en el mensaje original}}{\text{Media de número de bits en el mensaje cifrado}}
+        \end{equation}
+        Así, definimos la \textit{densidad de un problema} como la densidad de su vector solución.
+    \end{definicion}
+
+    Más adelante (en el capítulo \ref{ch:quinto-capitulo}), veremos los ataques por baja densidad basados en el algoritmo L$^{3}$. Por ahora, debemos centrarnos en que por cada iteración que se realiza con este método, la densidad del problema de la mochila disminuye. Esto permite realizar ataques por baja densidad como el de Lagarías o Coster. En este punto, es interesante realizar la siguiente definición para entender el concepto de composición de cifrados por sustitución simple y sus diferencias con respecto al método iterativo.
+    
+    \begin{definicion} \cite{libHelen}
+        Un \textit{cifrado por sustitución simple} es un método de cifrado en el que un simple caracter de un texto es sustituido por otro caracter determinado del alfabeto de sustitución. Esto es, se establecen parejas en la que el segundo elemento de la pareja es el caracter que sustituye al primero. Los alfabetos usados para el texto original y el texto cifrado pueden ser los mismos, aunque no tiene por qué.
+    \end{definicion}
+
+    El efecto de repetir el proceso iterativo varias veces es muy distinto al obtenido por métodos como el cifrado por sustitución simple. La diferencia es que la repetición de este tipo de cifrados no oculta ni enmascara el mensaje, ya que la composición de cifrados por sustitución es otro cifrado por sustitución. En cambio, la transformación $(w,m)$ no tiene esta propiedad de cierre. Veamos a continuación un contraejemplo que nos mostrará que la repetición de dos transformaciones $(w, m)$ y $(w', m')$, no es necesariamente equivalente a otra transformación $(\widetilde{w}, \widetilde{m})$.
+
+    \begin{proof}
+        Sea $n = 3$, $m' = 47$, $w' = 17$, $m = 89$, $w = 3$ y $a'' = (1, 5, 10)$, entonces, utilizando el método visto en el apartado \ref{sec:3.3.1} con el vector $a''$ y los valores $w'$ y $m'$, obtenemos $a' = (17, 38, 29)$. Aplicando de nuevo el mismo método pero con el vector $a'$ obtenido, y los valores $w$ y $m$, terminamos obteniendo $a = (51, 25, 87)$.
+
+        Suponemos ahora que existen valores $\widetilde{w}$ y $\widetilde{m}$ que verifican:
+        \begin{equation}
+            a_{i} = \widetilde{w} \cdot a''_{i} \text{ mod } \widetilde{m}
+        \end{equation}
+        Tomando los primeros valores $a_{1} = 51$ y $a''_{1} = 1$, sustituimos obteniendo:
+        \begin{align} \label{eq:3.2}
+            51 &= \widetilde{w} \text{ mod } \widetilde{m} \\
+            51 \cdot 5 &= \widetilde{w} \cdot 5 \text{ mod } \widetilde{m} \\
+            255 &= \widetilde{w} \cdot 5 \text{ mod } \widetilde{m}
+        \end{align}
+        Pero ahora, teniendo en cuenta la relación entre los segundos valores $a_{2} = 25$ y $a''_{2} = 5$,
+        \begin{equation}
+            25 = \widetilde{w} \cdot 5 \text{ mod } \widetilde{m}
+        \end{equation}
+        Por tanto, $255 = 25 \text{ mod } \widetilde{m} \Rightarrow 230 = 0 \text{ mod } \widetilde{m} \Rightarrow \widetilde{m} = 230$. Sustituimos este nuevo valor en la ecuación \eqref{eq:3.2} anterior:
+        \begin{equation}
+            51 = \widetilde{w} \text{ mod } 230
+        \end{equation}
+        Por lo que obtenemos que $\widetilde{w} = 51$. Aunque, si $\widetilde{m} = 230$ y $\widetilde{w} = 51$, entonces usando la relación entre los últimos valores, $a_{3} = 87$ y $a''_{3} = 10$, llegamos a que:
+        \begin{align}
+            87 &= 51 \cdot 10 \text{ mod } 230 \\
+            &= 510 \text{ mod } 230 \\
+            &= 50
+        \end{align}
+        lo cual es una contradicción. Finalmente concluimos que tales valores $\widetilde{w}$ y $\widetilde{m}$ no pueden existir.
+    \end{proof}
+
+    Podrían utilizarse otro tipo de vectores mochilas con trampilla fáciles de resolver, como la mochila con trampilla multiplicativa que hemos visto anteriormente. De esta forma, se pueden combinar ambos métodos en uno solo, presumiblemente más difícil de romper.
+    
+    \section{Fichero Público}
+
+    Como hemos descrito anteriormente, todo este proceso explicado tiene el objetivo de permitir la comunicación segura entre dos usuarios. Así, un usuario $I$ debe situar su clave pública $a(I)$ en una carpeta pública o algún sitio donde el resto de usuarios que quieran enviarle un mensaje tengan acceso. De esta forma, el usuario $J$ puede encontrar $a(I)$ y mandar su mensaje $x$ escondido como $S = a(I) \cdot  x$. 
+
+    Para eliminar el problema de almacenamiento de la clave $a(I)$, $J$ podría preguntarle al usuario $I$ por su clave pública. El problema es que a no ser que $J$ tenga un método para comprobar $a(I)$, otro usuario $K$ puede engañar a $J$ enviandole $a(K)$ y diciendo que ese valor es $a(I)$, por lo que $K$ obtendría el mensaje $x$. En consecuencia, se requiere un procedimiento que le asegure a $J$ que ha recibido el verdadero valor de $a(I)$.
+
+    Dado que se trata de un archivo de acceso público, la solución sería permitir que cada usuario pueda incorporar su propio vector personal al archivo. Luego, una vez autenticados en el sistema, deberían distinguirse de otros usuarios demostrando su capacidad para descifrar mensajes ocultos utilizando ese vector personal. Para finalizar, en cuanto a seguridad del archivo, es evidente que el archivo en sí debe contar con protección contra escritura. Veamos a continuación unos conceptos clave relacionados con este tema.
+
+    \begin{definicion} \cite{artTiwari, RSALab} 
+        Una \textit{función hash} es una función computable mediante un algoritmo que tiene la siguiente forma:
+        \begin{align}
+            H: U \rightarrow M \\
+            x \rightarrow h(x)
+        \end{align}
+        donde la entrada $x$ suele ser una cadena de texto, mientras que la salida $h(x)$ suele ser una cadena de longitud finita, denominada \textit{valor hash}. La característica principal de estas funciones es que el \textit{valor hash} tiene siempre un tamaño fijo independientemenete de la entrada recibida.
+    \end{definicion}
+ 
+    Las propiedades principales de la función hash dependen de la aplicación en particular, pero las más importantes en la práctica son la unidireccionalidad y la resistencia a las colisiones. La primera propiedad indica que es computacionalmente inviable encontrar cualquier entrada tal que al aplicarle una función hash, dé como resultado una salida predefinida (resistencia a la preimagen). Por otro lado, la segunda propiedad nos dice que es computacionalmente inviable encontrar dos valores distintos que produzcan la misma salida (resistencia a la colisión de segunda preimagen), es decir, que no puede haber dos cadenas que tengan el mismo valor hash. Además, una pequeña modificación en la entrada genera un valor hash completamente distinto. Esta definición y sus propiedades mencionadas son necesarias para entender la idea que nos proponen lo autores.
+
+    Con el objetivo de preservar la autenticación disminuyendo el tamaño de almacenamiento (aproximadamente se reduce unos $20$KB por usuario), Merkle y Hellman recomiendan el uso en la carpeta pública de un hash unidireccional de $100$ bits $h[a(I)]$, en lugar de la clave $a(I)$ completa. De esta nueva forma, cuando $J$ recibe $a(I)$ del usuario $I$, calcula $h[a(I)]$ y comprueba este valor con el almacenado en la carpeta pública. Esta nueva función hash sabemos que  debe ser unidireccional y resistente a colisiones, para que el usuario $K$ no pueda generar un vector $a(K)$ que verifique $h[a(K)] = h[a(I)]$.
+
+    Al permitir $100$ bits para almacenar el nombre del usuario y la dirección, el archivo público contiene ahora $200$ bits, en lugar de más de $20$ Kbit/usuario. Un sistema con un millón de usuarios requiere un archivo público de $200$ millones de bits, en lugar de $20.000$ millones de bits que necesitaría de la otra forma. Además un número de $100$ bits puede codificarse con $20$ caracteres alfanuméricos, lo cual lo hace lo suficientemente pequeño como para caber en una guía telefónica. 
+    
+    Una entrada de la carpeta pública tendría la siguiente forma:
+    \begin{align}
+        &\text{Joe Smith......497-1573} \\
+        &\text{KSDJR E6K65 3GFVM OMK4K}
+    \end{align}
+    La segunda linea de la carpeta pública es el hash $h[a(Smith)]$, del vector mochila con trampilla de Smith $a(Smith)$.
+    
+\endinput 

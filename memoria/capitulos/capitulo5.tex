@@ -1,0 +1,483 @@
+\chapter{Ataques por baja densidad} \label{ch:quinto-capitulo}
+
+     El objetivo de este capítulo consiste en abordar otros ataques a criptosistemas distintos al que se examinó en el capítulo \ref{ch:cuarto-capitulo}. En esta sección, nos enfocaremos en la vulnerabilidad de criptosistemas de baja densidad, como Merkle-Hellman iterado, cuya ruptura no fue tratada en el capítulo anterior. Las principales referencias bibliográficas de este capítulo son: \cite{artLagOdl}, \cite{artLLL}, \cite{artCoster} y \cite{tfgLag}.
+    
+    \section{Algoritmo L\texorpdfstring{$^3$}{3}}
+
+    Durante el transcurso de este capítulo, exploraremos diversos ataques criptográficos caracterizados por su preferencia a operar con criptosistemas de poca densidad. Ambos utilizan el algoritmo L$^{3}$, por lo que iniciaremos el capítulo proporcionando una explicación detallada de dicho algoritmo, para posteriormente adentrarnos en el análisis de cada uno de estos ataques.
+
+    El algoritmo L$^{3}$ o LLL, toma su nombre de sus diseñadores A. K. Lenstra, H. W. Lenstra, Jr. y L. Lovász. Es un algoritmo de simplificación de retículos publicado en $1982$, que parte de una base con coordenadas n-dimensionales de un retículo y devuelve una base reducida del mismo retículo, en tiempo polinomial.
+
+    Aunque nos adentraremos en cada uno de los pasos de este algoritmo, primeramente debemos definir ciertos conceptos que nos serán necesarios.
+
+    \begin{definicion} \cite{artLagOdl}
+        Sea el vector $v = (v_{1}, ... , v_{n}) \in \mathbb{R}^{n}$, definimos su \textit{norma euclídea} o \textit{longitud}, de la siguiente forma:
+        \begin{equation}
+            \|v\|^{2} = \sum_{i=1}^{n} v_{i}^{2}
+        \end{equation}
+    \end{definicion}
+    
+    Llamaremos \textit{vector corto} a un vector cuya longitud sea ``pequeña''. Buscamos encontrar el vector más corto, es decir, dada una base $B$ hallar el $v \in \mathbb{B}$ tal que $\| v \| \leq \| x \| \text{, } \forall x\in B$.  
+
+    \begin{definicion} \cite{artLagOdl}
+        Un \textit{retículo de enteros} $L$ es un subgrupo aditivo de $\mathbb{Z}^{n}$, que contiene $n$ vectores linealmente independientes sobre $\mathbb{R}^{n}$.
+    \end{definicion}
+
+    \begin{definicion} \cite{artLagOdl}
+        Una \textit{base} $(v_{1}, ... , v_{n})$ de un retículo de enteros $L$ es un conjunto de elementos de $L$ que verifica:
+        \begin{equation}
+            L = \sum_{i=1}^{n} \mathbb{Z}v_{i} = \mathbb{Z}v_{1} \oplus \cdot \cdot \cdot \oplus \mathbb{Z}v_{n}
+        \end{equation}
+    \end{definicion}
+
+    Representamos una base del retículo $L$ mediante la matriz de base $n$ x $n$:
+    \begin{equation}
+        V = 
+        \begin{bmatrix}
+            v_{1}  \\
+            \vdots \\
+            v_{n}  \\
+        \end{bmatrix}
+    \end{equation}
+    formada por los vectores de la base puestos por filas. Además, se verifica que si $V_{1}$ y $V_{2}$ son dos matrices de bases del mismo retículo $L$, existe una matriz unimodular $U \in GL(n, \mathbb{Z})$, que verifica que:
+    \begin{equation}
+        U \cdot V_{1} = V_{2}
+    \end{equation}
+    De igual forma, si $V$ es una matriz de base del retículo $L$, y $U \in GL(n, \mathbb{Z})$, entonces $U \cdot V$ es una matriz de base de $L$.
+
+    \begin{definicion} \cite{artLLL}
+        El \textit{determinane} $d(L)$ de un retículo $L \subset \mathbb{R}^{n}$ se define por:
+        \begin{equation}
+            det(L) = \left| det(v_{1}, ... , v_{n}) \right|
+        \end{equation}
+        donde los elementos $v_{i}$ son los vectores de una base puestos por columnas. Este valor positivo no depende de la base escogida.
+    \end{definicion}
+
+    Ahora, sea $(v_{1}, ... , v_{n})$ una base del retículo $L \subset \mathbb{R}^{n}$, y sea $(v'_{1}, ... , v'_{n})$ su ortogonalización de Gram-Schmidt. Denotamos como $(\mu_{ij})$ a los elementos de la matriz $M$ de Gram-Schmidt que verifica $V = M \cdot V'$, donde $V$ es la matriz con vector $v_{i}$ en la fila $i$-ésima (respectivamente con $V'$).
+    
+    \begin{definicion} \cite{artLagOdl} \label{def:5.5}
+        Una base de un retículo $(v_{1}, ... , v_{n})$ diremos que es \textit{$\alpha$-reducida} o \textit{LLL-reducida con parámetro $\alpha$}, si satisface ambas propiedades:
+        \begin{enumerate}
+            \item $\left| \mu_{ij} \right| \leq \frac{1}{2}$, para $1 \leq j < i \leq n$
+            \item $\| v'_{i} + \mu_{i,i-1} v'_{i-1} \|^{2} \geq \alpha\| v'_{i-1} \|^{2}$, para $2 \leq i \leq n$ 
+        \end{enumerate}
+        Esta última condición se conoce como \textit{condición de intercambio}.
+    \end{definicion}
+
+    La idea intuitiva de la primera condición, nos dice que cada vector $v_{i}$ de la base es ``casi ortogonal'' al generador de los vectores anteriores, ya que por Gram-Smith:
+    \begin{equation}
+        \langle v_{1}, ... , v_{i-1} \rangle = \langle v'_{1}, ... , v'_{i-1} \rangle
+    \end{equation}
+    Por otro lado, la segunda condición nos indica que al intercambiar $v_{i-1}$ y $v_{i}$, y aplicar de nuevo el método de ortogonalización de Gram-Schmidt, se puede generar un vector ``un poco más corto''. 
+
+    Teniendo en cuenta que $\frac{1}{4} < \alpha < 1$, tomaremos el valor estándar del parámetro como $\alpha = \frac{3}{4}$. Nuestro objetivo es demostrar que para cualquier retículo $L \subset \mathbb{R}^{n}$ y cualquier base $\alpha$-reducida de $L$, el algoritmo L$^{3}$ genera una base $\alpha$-reducida de $L$ en un número de pasos acotados por un polinomio dependiente de $n$.
+
+    \begin{definicion} \cite{tfgLag}
+        Definimos el parámetro secundario $\beta$ como:
+        \begin{equation}
+            \beta = \frac{4}{4\alpha - 1} \text{ , con } \frac{1}{4} < \alpha < 1
+        \end{equation}
+        Las dos condiciones de $\alpha$ son para que se verifique $\beta > \frac{4}{3}$. Asimismo, para el valor estándar $\alpha = \frac{3}{4}$, se obtiene $\beta = 2$. 
+    \end{definicion}
+    
+    \begin{proposicion} \cite{artLLL}
+        Sea $(v_{1}, ... , v_{n})$ una base $\alpha$-reducida de un retículo $L \subset \mathbb{R}^{n}$, y sea $(v'_{1}, ... , v'_{n})$ su ortogonalización de Gram-Schmidt. Entonces:
+        \begin{enumerate}
+            \item $\left| v_{j} \right|^{2} \leq \beta^{i-j} \left| v'_{i} \right|^{2}$, para $1 \leq j \leq i \leq n$
+            \item $det(L) \leq \left| v_{1} \right| \left| v_{2} \right| \hdots \left| v_{n} \right| \leq \beta^{n(n-1)/4} \cdot det(L)$
+            \item $\left| v_{1} \right| \leq \beta^{(n-1)/4} \cdot det(L)^{1/n}$
+        \end{enumerate}
+        donde $\beta$ es el parámetro definido previamente.
+    \end{proposicion}
+
+    \begin{proof}
+        Partiendo de la definición \ref{def:5.5}, podemos ver que:
+        \begin{equation}
+            \left| v'_{i} \right|^{2} \geq (\alpha - \mu_{i,i-1}^{2}) \left| v'_{i-1} \right|^{2} \geq (\alpha - \frac{1}{4})\left| v'_{i-1} \right|^{2} = \frac{1}{\beta} \left| v'_{i-1} \right|^{2}
+        \end{equation}
+        Por tanto, $\left| v'_{i-1} \right|^{2} \leq \beta \left| v'_{i} \right|^{2}$, y por inducción obtenemos:
+        \begin{equation} \label{eq:5.1}
+            \left| \smash[b]{v'_{j}} \right|^{2} \leq \beta^{i-j} \left| v'_{i} \right|^{2} \text{, para } 1 \leq j \leq i \leq n
+        \end{equation}
+        La definición de $v'_{i}$ en la ortogonalización de Gram-Schmidt se puede reescribir como $v_{i} = v'_{i} + \sum_{j=1}^{i-1} \mu_{ij}v'_{j}$. Asimismo, como $v'_{1}, ... , v'_{n}$ son ortogonales, $v_{i}^{2} = v_{i}^{'2} + \sum_{j=1}^{i-1} \mu_{ij}^{2} \left| \smash[b]{v'_{j}} \right|^{2}$. Con esto y a partir de la definición \ref{def:5.5}, llegamos a:
+        \begin{equation}
+            \left| v_{i} \right|^{2} = \left| v'_{i} \right|^{2} + \sum_{j=1}^{i-1} \frac{1}{4}\beta^{i-j} \left| v'_{i} \right|^{2} = (1 + \frac{1}{4} \sum_{j=1}^{i-1} \beta^{i-j}) \left| v'_{i} \right|^{2}
+        \end{equation}
+        Aplicando la fórmula de la suma de una progresión geométrica, obtenemos:
+        \begin{equation}
+            \left| v_{i} \right|^{2} \leq (1 + \frac{1}{4} \cdot \frac{\beta^{i} - \beta}{\beta - 1}) \left| v'_{i} \right|^{2}
+        \end{equation}
+        Ahora, vamos a aplicar inducción sobre $i$ para demostrar lo siguiente:
+        \begin{equation}
+            1 + \frac{1}{4} \cdot \frac{\beta^{i} - \beta}{\beta - 1} \leq \beta^{i-1}
+        \end{equation}
+        Para el primer caso, tomando $i=1$ es trivial. Para el paso de inducción es suficiente probar que:
+        \begin{equation}
+            1 + \frac{1}{4} \cdot \frac{\beta^{i+1} - \beta}{\beta - 1} \leq \beta (1 + \frac{\beta^{i} - \beta}{4(\beta - 1)})
+        \end{equation}
+        Como $\beta > \frac{4}{3}$, podemos multiplicar por $4(\beta-1)$ y simplificar, obteniendo:
+        \begin{equation}
+            3\beta^{2} - 7\beta + 4 = (\beta -1)(3\beta-4) \geq 0
+        \end{equation}
+        Por tanto, ahora tenemos:
+        \begin{equation} \label{eq:5.2}
+            \left| v_{i} \right|^{2} \leq \beta^{i-1} \left| v'_{i} \right|^{2}
+        \end{equation}
+        Usando la fórmula \eqref{eq:5.1}:
+        \begin{equation}
+            \left| v_{j} \right|^{2} \leq \beta^{j-1} \left| \smash[b]{v'_{j}} \right|^{2} \leq \beta^{i-1} \left| v'_{i} \right|^{2} \text{, para } 1 \leq j \leq i \leq n
+        \end{equation}
+        Por lo que queda demostrado el apartado $(1)$. Por el teorema de Gram-Schmidt, sabemos que:
+        \begin{equation}
+            det(L) = \left| v'_{1} \right| \left| v'_{2} \right| \hdots \left| v'_{n} \right| \leq \left| v_{1} \right| \left| v_{2} \right| \hdots \left| v_{n} \right|
+        \end{equation}
+        A partir de la ecuación \eqref{eq:5.2},
+        \begin{equation}
+            \left| v_{1} \right|^{2} \left| v_{2} \right|^{2} \hdots \left| v_{n} \right|^{2} \leq \beta^{0 + 1 + \hdots + (n-1)} \left| v'_{1} \right|^{2} \left| v'_{2} \right|^{2} \hdots \left| v'_{n} \right|^{2}
+        \end{equation}
+        y por tanto,
+        \begin{equation}
+            \left| v_{1} \right| \left| v_{2} \right| \hdots \left| v_{n} \right| \leq \beta^{n(n-1)/4} \left| v'_{1} \right| \left| v'_{2} \right| \hdots \left| v'_{n} \right| = \beta^{n(n-1)/4} \cdot det(L)
+        \end{equation}
+        Por lo que queda demostrado el apartado $(2)$. Por último, fijando $j = 1$ en el apartado $(1)$, se tiene:
+        \begin{equation}
+            \left| v_{1} \right|^{2} \leq \beta^{i-1} \left| v'_{i} \right|^{2} \text{, con } 1 \leq i \leq n
+        \end{equation}
+        Tomando el producto $i = 1, ... , n$:
+        \begin{equation}
+            \left| v_{1} \right|^{2n} \leq \beta^{0 + 1 + \hdots + (n-1)} \left| v'_{1} \right|^{2} \left| v'_{2} \right|^{2} \hdots \left| v'_{n} \right|^{2} = \beta^{n(n-1)/2} \cdot det(L)^{2}
+        \end{equation}
+        Finalmente, tras tomar la raiz de $2n$, queda demostrado el apartado $(3)$.
+    \end{proof}
+
+    \begin{teorema} \cite{artLLL}
+        Sea $(v_{1}, ... , v_{n})$ una base $\alpha$-reducida del retículo $L \subset \mathbb{R}^{n}$, e $y \in L$ un vector no nulo del retículo, entonces:
+        \begin{equation}
+            \left| v_{1} \right|^{2} \leq \beta^{n-1} \left| y \right|^{2}
+        \end{equation}
+    \end{teorema}
+
+    \begin{proof}
+        Sea $(v'_{1}, ... , v'_{n})$ la ortogonalización de Gram-Schmidt de $(v_{1}, ... , v_{n})$. Por la definición de base $\alpha$-reducida, para $2 \leq i \leq n$, tenemos:
+        \begin{equation}
+            \left| v'_{i} \right|^{2} \geq (\alpha - \mu_{i,i-1}^{2}) \left| v'_{i-1} \right|^{2} \geq (\alpha - \frac{1}{4})\left| v'_{i-1} \right|^{2} = \frac{1}{\beta} \left| v'_{i-1} \right|^{2}
+        \end{equation}
+        Como $v_{1} = v'_{1}$, 
+        \begin{equation}
+            \left| v_{1} \right|^{2} = \left| v'_{1} \right|^{2} \leq \beta \left| v'_{2} \right|^{2} \leq \beta^{2} \left| v'_{3} \right|^{2} \leq \cdot \cdot \cdot \leq \beta^{n-1} \left| v'_{n} \right|^{2} 
+        \end{equation}
+        por lo que tenemos:
+        \begin{equation}
+            \left| v'_{i} \right|^{2} \geq \beta^{-(i-1)} \left| v_{1} \right|^{2} \text{, para } 1 \leq i \leq n
+        \end{equation}
+        Como consecuencia de Gram-Schmidt, se sabe que para cualquier $y \in L$ no nulo:
+        \begin{equation}
+            \left| y \right| \geq min\{\left| v'_{1} \right|, ... , \left| v'_{n} \right|\}
+        \end{equation}
+        por tanto,
+        \begin{equation}
+            \left| y \right|^{2} \geq min\{\left| v'_{1} \right|^{2}, ... , \left| v'_{n} \right|^{2}\} \geq \beta^{-(n-1)} \left| v_{1} \right|^{2}
+        \end{equation}
+        Finalmente, despejando llegamos al resultado deseado:
+        \begin{equation}
+            \left| v_{1} \right|^{2} \leq \beta^{n-1} \left| y \right|^{2}
+        \end{equation}
+    \end{proof}
+
+    Cabe destacar que el resultado anterior es el caso un particular, con $m = 1$, del siguiente resultado más general, cuya demostración obviaremos.
+
+    \begin{teorema} \cite{artLLL}
+        Sea $(v_{1}, ... , v_{n})$ una base $\alpha$-reducida del retículo $L \subset \mathbb{R}^{n}$, e $(y_{1}, ... , y_{m}) \in L$, $m$ vectores linealmente independientes del retículo, entonces, para $1 \leq j \leq m$ se verifica:
+        \begin{equation}
+            \left| v_{j} \right|^{2} \leq \beta^{n-1} max\{\left| y_{1} \right|^{2}, ... , \left| y_{m} \right|^{2}\}
+        \end{equation}
+    \end{teorema}
+
+    Tras todo lo explicado, llegamos al objetivo principal de este primer apartado: el Algoritmo L$^{3}$. Para ello, incluimos el código \cite{tfgLag} tanto del algoritmo principal, como de dos funciones utilizadas en él:
+    
+    \begin{algorithm}[H]
+        \caption{Función reduce($k, l$)}
+        \textbf{Input:} Índices de los valores que se van a ``ortogonalizar''. \\
+        \textbf{Output:} Base y coeficientes de la ortogonalización de Gram-Schmidt tras la modificación.
+        \bigskip
+        \begin{algorithmic}[1]
+            \If{$\left| \mu_{kl} \right| > 1/2$}
+            \State $y_{k} = y_{k} - [\mu_{kl}] y_{l}$
+            \For{$j$ from $1$ to $l-1$}
+            \State $\mu_{kj} = \mu_{kj} - [\mu_{kl}] \mu_{lj}$
+            \EndFor
+            \State $\mu_{kl} = \mu_{kl} - [\mu_{kl}]$
+            \EndIf
+        \end{algorithmic}
+    \end{algorithm}
+
+    Esta primera función, hace que $y_{k}$ sea ``casi ortogonal'' a $y_{l}$. Como $[\mu_{kl}]$ es el entero más cercano al coeficiente de Gram-Schmidt, es la mejor reducción posible. Después, actualiza la base y los coeficientes de la ortogonalización de Gram-Schmidt.
+    
+    \begin{algorithm}[H]
+        \caption{Función exchange($k$)}
+        \textbf{Input:} Índice del valor que se va a intercambiar con su anterior. \\
+        \textbf{Output:} Base y coeficientes de la ortogonalización de Gram-Schmidt tras el intercambio. 
+        \bigskip
+        \begin{algorithmic}[1]
+            \State $z = y_{k-1}$; $y_{k-1} = y_{k}$; $y_{k} = z$
+            \State $v = \mu_{k, k+1}$; $\delta = \gamma'_{k} + v^{2} \cdot \gamma'_{k-1}$ 
+            \State $\mu_{k, k-1} = v \cdot \gamma'_{k-1} / \delta$; $\gamma'_{k} = \gamma'_{k}\gamma'_{k-1}/\delta$; $\gamma'_{k-1} = \delta$
+            \For{$j$ from $1$ to $k-2$}
+            \State $t = \mu_{k-1, j}$; $\mu_{k-1, j} = \mu_{kj}$; $\mu_{kj} = t$
+            \EndFor
+            \For{$i$ from $k+1$ to $n$}
+            \State $\psi = \mu_{ik}$; $\mu_{ik} = \mu_{i, k-1} - v \cdot \mu_{ik}$; $\mu_{i,k-1} = \mu_{k, k-1}\mu_{ik} + \psi$
+            \EndFor
+        \end{algorithmic}
+    \end{algorithm}
+
+    Esta otra función, intercambia los vectores $y_{k-1}$ e $y_{k}$. Luego, actualiza la base y los coeficientes de la ortogonalización de Gram-Schmidt, y los devuelve.
+
+    \begin{algorithm}[H]
+        \caption{Algoritmo L$^{3}$}
+        \textbf{Input:} Una base $(x_{1}, ... , x_{n})$ del retículo $L \subset \mathbb{R}^{n}$ y el parámetro $\alpha \in \mathbb{R}$ verificando $\frac{1}{4} < \alpha < 1$. \\
+        \textbf{Output:} Una base $\alpha$-reducida $(y_{1}, ... , y_{n})$ del retículo $L \subset \mathbb{R}^{n}$.
+        \bigskip
+        \begin{algorithmic}[1]
+            \For{$i$ from $1$ to $n$}
+            \State $y_{i} = x_{i}$
+            \EndFor
+            \For{$i$ from $1$ to $n$}
+            \State $y'_{i} = y_{i}$
+            \For{$j$ from $1$ to $i-1$}
+            \State $\mu_{ij} = (y_{i} \cdot y'_{j}) / \gamma'_{j}$ 
+            \State $y'_{i} = y'_{i} - \mu_{ij} \cdot y'_{j}$
+            \EndFor
+            \State $\gamma'_{i} = y'_{i} \cdot y'_{i}$
+            \EndFor
+            \State $k = 2$
+            \While{$k \leq n$}
+            \State \textbf{reduce}($k, k-1$)
+            \If{$\gamma'_{k} \geq (\alpha - \mu_{k, k-1}^{2}) \gamma'_{k-1}$}
+            \For{$l$ from $k-2$ to $1$}
+            \State \textbf{reduce}($k, l$)
+            \EndFor
+            \State $k = k+1$
+            \Else
+            \State \textbf{exchange}($k$)
+            \If{$k > 2$}
+            \State $k = k-1$
+            \EndIf
+            \EndIf
+            \EndWhile
+        \end{algorithmic}
+    \end{algorithm}
+
+    Por último, el algoritmo LLL realiza una copia de los vectores de entrada, aplica el proceso de ortogonalización de Gram-Schmidt y finalmente llama a las dos funciones previas para que reduzcan e intercambien los vectores obtenidos. Estos vectores se modifican continuamente a lo largo del algoritmo, de tal manera que siempre forman parte de una base del retículo $L$.
+
+    \newpage
+
+    \section{Ataque de Lagarias-Odlyzko}
+
+    En esta sección se presenta el algoritmo diseñado por J. C. Lagarias y A. M. Odlyzko \cite{artLagOdl}, para resolver instancias del problema de la mochila. Su método implica transformar la instancia original del problema y luego aplicar el algoritmo de reducción de bases de retículos, para así determinar la solución. El rendimiento del algoritmo propuesto se analiza detenidamente, y aunque este algoritmo siempre se detiene en tiempo polinómico, no siempre encuentra una solución cuando existe.
+
+    Para caracterizar el algoritmo, usaremos el concepto de densidad, visto en la definición \ref{def:3.8}, donde $n$ representa la cantidad de elementos del conjunto. Así, para ``casi todos'' los casos con densidad $d < 0.645$, el vector que estamos tratando de encontrar resulta ser el vector más corto no nulo del retículo. Asimismo, tras realizar exhaustivas pruebas computacionales, se observa que este algoritmo es efectivo para densidades $d < d_{c}(n)$, donde $d_{c}(n)$ es un umbral. Como consecuencia, este enfoque proporciona una solución de tiempo polinómico a los sistemas de cifrado del problema de la mochila, lo que implica que puede comprometerlos si la velocidad de transmisión de información es menor que de $d_{c}(n)$, cuando $n \rightarrow \infty$.
+
+    \subsection{Preludio al método}
+
+    Tras la publicación del criptoanálisis de Shamir en $1983$, que como ya sabemos, anunciaba un método para romper el criptosistema de clave pública más simple de Merkle-Hellman, se propusieron otros ataques para criptosistemas más complicados. Esos ataques estaban todos basados en la idea de recuperar la información trampilla oculta en los valores de los pesos. Sin embargo, aquí se propone un método denominado ``Algorithm SV'' (Short Vector), que localiza la solución del problema de la mochila directamente, sin intentar buscar la información trampilla.
+
+    Este nuevo método consiste en transformar el problema inicial, en el problema de encontrar el vector más corto $e$ en un retículo de enteros $L$. Tras esto, se aplica el algoritmo previo de reducción de bases de retículos para obtener una base reducida. El método se considera exitoso cuando el vector $e$ se encuentra en la base reducida, y en tal caso, podemos derivar una solución a partir del vector obtenido.
+
+    Recordemos que al explicar el problema de la mochila por primera vez, definíamos $a = \{a_{1}, ... , a_{n}\} \subseteq \mathbb{N}^{*}$ como el conjunto de pesos del problema, y $S \in \mathbb{N}^{*}$ la capacidad total de la mochila. Este recordatorio de la notación es importante para lo que explicaremos a continuación.
+
+    El principal resultado de esta sección se centra en el análisis del rendimiento del Algoritmo SV, dado que se muestra exitoso en la resolución de problemas de suma de subconjuntos de baja densidad de la siguiente forma:
+
+    \newpage
+    
+    \begin{enumerate}
+        \item Para ``casi todos'' los problemas de la mochila cuya $d(a) < 0.645$, el vector $e$ es el vector no nulo más corto del retículo $L$.
+        \item  Para ``casi todos'' los problemas de la mochila resolubles con $n$ pesos que tienen $d(a) < (2 - \epsilon)(log_{2} (\frac{4}{3}))^{-1}n^{-1}$, para cualquier $\epsilon > 0$ fijo, el algoritmo encuentra una solución.
+    \end{enumerate}
+    
+    Lagarias y Odlyzko explican en su artículo que el primer resultado es el más exacto posible, en el sentido de que ya no se cumple si se reemplaza por $0.646$, según las heurísticas utilizadas. Por otro lado, el segundo resultado es más débil de lo que parece a simple vista, ya que no se garantiza que el algoritmo L$^{3}$ produzca el vector más corto no nulo $v_{min}$ del retículo $L \subset \mathbb{Z}^{n}$, simplemente produce uno de ellos. 
+
+    El método que presentamos utiliza el algoritmo L$^{3}$, ya que es el algoritmo original del artículo \cite{artLagOdl}. Además, funciona de manera satisfactoria para encontrar vectores razonablemente cortos de un retículo en tiempo de ejecución polinómico. Sin embargo, en lugar de usar el Algoritmo SV, se podrían realizar modificaciones sustituyendo el algoritmo L$^{3}$ por otro que encuentre vectores cortos de un retículo, o incluso, utilizar otro para encontrar buenas aproximaciones diofánticas multidimensionales, que podría funcionar bien en la práctica.
+
+    Para finalizar esta sección, debemos remarcar que este método complementa los ataques existentes a los criptosistemas de mochila que se basan en la recuperación de información trampilla. De este modo, cuando la densidad es baja, el método descrito aquí debería tener éxito. En cambio, cuando la densidad es alta, la información trampilla es más difícil de ocultar, y los ataques basados en esta búsqueda tienen más posibilidades de éxito.
+
+    \subsection{Descripción del método}
+
+    Procedemos en este apartado a explicar el método propuesto por Lagarias y Odlyzko para romper criptosistemas con poca densidad basados en el problema de la mochila. Tal y como ya hemos explicado, el objetivo es aplicar una reducción del problema de la mochila al problema de la búsqueda del vector más corto de un retículo, para así poder aplicar el algoritmo L$^{3}$, obteniendo la solución deseada. 
+    
+    Si el Algoritmo SV produce una solución, decimos que tiene éxito; si no, que falla. A continuación, se muestran los pasos del algoritmo a seguir:
+
+    \begin{algorithm}[H]
+        \caption{Algoritmo Short Vector (SV)}
+        \textbf{Input:} Clave pública $a = (a_{1}, ... , a_{n})$ y capacidad máxima de la mochila $M$.\\
+        \textbf{Output:} Una solución $b'_{i} = (b'_{i,1}, ... , b'_{i,n+1})$ al problema de la mochila.
+        \bigskip
+        \begin{algorithmic}[1]
+            \State Considerar los siguientes vectores que forman una base $(b_{1}, ... , b_{n+1})$ de un retículo de enteros $L$ con dimensión $n+1$:
+            \begin{align}
+                b_{1} =& (1, 0, ... , 0, -a_{1}) \\
+                b_{2} =& (0, 1, ... , 0, -a_{2}) \\
+                \vdots&                          \\
+                b_{n} =& (0, 0, ... , 1, -a_{n}) \\
+                b_{n+1} =& (0, 0, ... , 0, M)
+            \end{align}
+            \State Aplicar el algoritmo L$^{3}$ para encontrar una base reducida $(b'_{1}, ... , b'_{n+1})$.
+            \State Comprobar si algún $b'_{i} = (b'_{i,1}, ... , b'_{i,n+1})$ tiene todos sus elementos $b'_{ij} = 0$ o $b'_{ij} = \lambda$, para algún $\lambda$ fijo, con $1 \leq j \leq n$. Para cada $b'_{i}$ que verifique lo anterior, comprobar si $x_{j} = \lambda^{-1} b'_{i,j}$ para $1 \leq j \leq n$, es solución. En caso afirmativo, finalizar el algoritmo. De lo contrario, continuar.
+            \State Repetir los pasos $(1)-(3)$ reemplazando $M$ por $M' = \sum_{i=1}^{n} a_{i} - M$. Después, finalizar el algoritmo.
+        \end{algorithmic}
+    \end{algorithm}
+
+    Como este algoritmo consiste esencialmente en aplicar dos veces el algoritmo L$^{3}$, obtenemos el siguiente lema acerca del límite en tiempo de ejecución. Obviaremos su demostración.
+
+    \begin{lema} \cite{artLagOdl}
+        Sea $a = (a_{1}, ... , a_{n})$ y $M < \sum_{i=1}^{n} a_{i}$ las entrada del algoritmo SV, y supongamos que max($a_{i}$) $\leq B$. Entonces el Algoritmo SV se detiene tras, como mucho, $O(n^{6}(log (nB))^{3})$ operaciones de bits.
+    \end{lema}
+    
+    \section{Ataque de Coster et al}
+
+    De manera análoga al apartado anterior, vamos a explicar el algoritmo propuesto por Coster \cite{artCoster}, que resuelve el problema de la mochila mejorando la solución de Lagarias recién vista. Realmente, el artículo original está escrito por los siguientes seis autores: Matthijs J. Coster, Antoine Joux, Brian A. Lamacchia, Andrew M. Odlyzko, Claus-Peter Schnorr y Jacques Stern. Aún así, usaremos el apellido de Coster para referirnos a todos los autores involucrados en este trabajo.
+
+    El resultado principal de este artículo es la obtención de una mejora al ``Algoritmo SV'' de Lagarias y Odlyzko, utilizando la misma idea de reducción del problema de la mochila al problema de búsqueda del vector más corto en un retículo. Hasta ese momento, el mejor algoritmo para solventar este problema era el algoritmo L$^{3}$.
+
+    Sabemos que para poder encontrar una solución al problema de la mochila utilizando el Algoritmo SV de Lagarias-Odlyzko, la densidad de la clave pública debe ser menor a $0.645$. Sin embargo, según la explicación de Coster, es posible hallar soluciones en tiempo polinomial para casi todos los problemas de suma de subconjuntos con densidad menor a $0.9408...$ mediante unas pequeñas modificaciones. A continuación, explicamos esta idea.
+
+    \subsection{Preludio al método}
+
+    En primer lugar, Coster divide su artículo en cinco secciones en las que trata diversos temas. La primera sección se centra en presentar el problema de la mochila, introducir los criptosistemas basados en este problema y resumir el artículo de Lagarias. En contraste, la última sección se encarga de analizar los resultados obtenidos. 
+    
+    Es en las secciones intermedias, donde se propone una modificación del Algoritmo SV, que irá mejorando con el avance del artículo. Detallamos ahora estas secciones, con el fin de comprender el proceso de perfeccionamiento que lleva a la obtención de los algoritmos finales.
+
+    \subsubsection{Segunda sección}
+
+    Comencemos definiendo la clave pública como $(a_{1}, ... , a_{n})$ y el vector solución del problema de la mochila como $e = (e_{1}, ... , e_{n}) \in \{0, 1\}^{n}$. Así, $s = \sum_{i=1}^{n} e_{i}a_{i}$, es la capacidad máxima de la mochila, es decir, el mensaje cifrado; y $t = \sum_{i=1}^{n} a_{i}$, es la suma de la clave pública.
+    
+    Vamos a asumir que $s \geq t/n$, ya que de lo contrario si $s < t/n$, nigún $a_{i} \geq t/n$ puede estar en el subconjunto. De forma similar, $s \leq (1 - (1/n)) t$ ya que sino cualquier $a_{i} > t/n$ debe estar en el subconjunto. Obtenemos por tanto:
+    \begin{equation}
+        \frac{1}{n}t \leq s \leq \frac{n-1}{n}t
+    \end{equation}
+    Seguidamente, vamos a redefinir el ataque de Lagarias-Odlyzko a criptosistemas de baja densidad basados en el problema de la suma de subconjuntos. Definimos así $b_{1}, ... , b_{n+1}$, como los siguientes vectores:
+    \begin{align}
+        b_{1} =& (1, 0, ... , 0, Na_{1}) \\
+        b_{2} =& (0, 1, ... , 0, Na_{2}) \\
+        \vdots&                          \\
+        b_{n} =& (0, 0, ... , 1, Na_{n}) \\
+        b_{n+1} =& (0, 0, ... , 0, Ns)
+    \end{align}
+    donde $N$ es un entero positivo que verifica $N > \sqrt{n}$. 
+    
+    Para saber de donde sale este valor, definamos $L$ como el retículo generado por los vectores anteriores $b_{1}, ... , b_{n+1}$:
+    \begin{equation}
+        L = \{\sum_{i=1}^{n+1} z_{i}b_{i} \text{, tq } z_{i} \in \mathbb{Z} \text{ para } 1 \leq i \leq n+1\}
+    \end{equation}
+    Podemos ver que el vector $\hat{e} = (e_{1}, ... , e_{n}, 0) \in L$. Por temas de demostración, estamos interesados en los vectores $\hat{x} = (x_{1}, ... , x_{n+1})$ que verifican:
+    \begin{align} \label{eq:5.3}
+        \| \hat{x} \| &\leq \| \hat{e} \|, \\
+        \hat{x} &\in L, \\
+        \hat{x} &\notin \{0, \hat{e}, -\hat{e}\}
+    \end{align}
+    Además, supongamos que:
+    \begin{equation}
+        \sum_{i=1}^{n} e_{i} \leq \frac{1}{2}n
+    \end{equation}
+    Esto nos dice que el subconjunto contiene como máximo la mitad de los $a_{i}$ totales. Si contrariamente $\sum_{i=1}^{n} e_{i} > \frac{1}{2}n$, debemos reemplazar $s$ por $t-s$, $b_{n+1}$ por $b'_{n+1} = (0, ... , 0, N(t-s))$ y $\hat{e}$ por $\hat{e}' = (1 - e_{1}, ... , 1 - e_{n}, 0)$. Resolver este nuevo problema es equivalente a resolver el problema $\sum_{i=1}^{n} (1-e_{i}) \leq \frac{1}{2}n$ y $s' = t - s \geq t/n$.
+
+    Por último, tomando $N > \sqrt{n}$, es claro que $\hat{x}$ verifica la ecuación \eqref{eq:5.3} solo si $x_{n+1} = 0$, ya que de otro modo contradice a la ecuación:
+    \begin{equation}
+        \| \hat{x} \| \geq \left| x_{n+1} \right| \geq N > \sqrt{n} \geq \| \hat{e} \|
+    \end{equation}
+   El resto de la sección se ocupa de demostrar que todos los problemas de suma de subconjuntos con densidad menor a $0.6463...$ podrían resolverse en tiempo polinómico, dada la existencia de un oráculo.
+
+    \begin{definicion}
+        Definimos un \textit{oráculo de retículo}, o simplemente \textit{oráculo}, a una caja negra o algoritmo teórico que es capaz de obtener el vector más corto de un retículo en tiempo polinomial.
+    \end{definicion}
+
+    \subsubsection{Tercera sección}
+
+    La tercera sección del artículo introduce una nueva mejora de la densidad máxima de los problemas de suma de subconjuntos que pueden resolverse ``casi siempre'':
+    
+    \begin{teorema} \cite{artCoster}
+        Sea $A$ un número entero positivo, y sean $a_{1}, ... , a_{n}$ enteros aleatorios con $0 < a_{i} \leq A$ para $1 \leq i \leq n$. Sea $e = (e_{1},..., e_{n}) \in \{0, 1\}^{n}$ arbitrario, y $s = \sum_{i=1}^{n} e_{i}a_{i}$. Si la densidad $d < 0.9408...$, entonces el problema de la suma de subconjuntos definido por $a_{1}, ... , a_{n}$ y $s$, puede resolverse ``casi siempre'' en tiempo polinómico con una sola llamada a un oráculo.
+    \end{teorema}
+
+    Para obtener este resultado, debemos reemplazar el vector anterior $b_{n+1}$, por:
+    \begin{equation}
+        b'_{n+1} = (\frac{1}{2}, ..., \frac{1}{2}, Ns)
+    \end{equation}
+    donde ahora, $N$ es un entero positivo que verifica $N > \frac{1}{2}\sqrt{n}$. 
+
+    Para explicar este nuevo valor, definamos el retículo $L'$ como el generado por los vectores $b_{1}, ... , b'_{n+1}$. Nos damos cuenta de que el vector $\hat{e} \notin L'$. No obstante, si que se verifica que $\hat{e}' = (e'_{1}, ... , e'_{n}, 0) \in L'$, con $e'_{i} = e_{i} - \frac{1}{2}$. Como $e_{i} \in \{0, 1\}$ para $1 \leq i \leq n$, sabemos que $e'_{i} \in \{-\frac{1}{2}, \frac{1}{2}\}$ para $1 \leq i \leq n$. Notemos también que $\| \hat{e}' \|^{2} \leq \frac{1}{4}n$. 
+    
+    Finalmente, aplicando el mismo argumento previo y tomando $N > \frac{1}{2} \sqrt{n}$, es claro que $\hat{x}$ verifica la ecuación \eqref{eq:5.3} solo si $x_{n+1} = 0$, de ahí su valor. El resto de la tercera sección se enfoca en demostrar que gracias a esta modificación, cualquier problema de suma de subconjuntos con densidad $d < 0.9408...$, puede ser resuelto en tiempo polinómico, dada la existencia de un oráculo.
+
+    \subsubsection{Cuarta sección}
+    
+    En la tercera sección, hemos presentado una manera de mejorar la densidad, por debajo de la cual un oráculo permite resolver la mayoría de los problemas de suma de subconjuntos. Esto lo hemos hecho reemplazando el retículo $L$, por el retículo $L'$. Aquí esbozamos cómo se puede lograr un aumento en la densidad crítica comparable a este último apartado, mediante el uso del retículo $L''$, que es muy diferente. 
+    
+    Este nuevo retículo $L''$ se genera mediante los siguientes vectores en $\mathbb{R}^{n+2}$:
+    \begin{align}
+        b_{1} =& (n+1, -1, -1, ... , -1, Na_{1}) \\
+        b_{2} =& (-1, n+1, -1, ... , -1, Na_{2}) \\
+        \vdots&                          \\
+        b_{n} =& (-1, ... , -1, n+1, -1, Na_{n}) \\
+        b_{n+1} =& (-1, ... , -1, -1, n+1, -Ns)
+    \end{align}
+    donde $N$ es un entero positivo que verifica $N \geq n^{2}$.
+
+    Durante el resto de esta sección, se prueba que la densidad crítica de este método es exactamente la misma que la del método de la sección $3$, ya que ambos dependen del número de puntos del retículo en cualquier esfera (en $\mathbb{R}^{n}$, para el método de la sección $3$; o $\mathbb{R}^{n+1}$, para el método de esta sección) que tenga un radio aproximado de $\frac{1}{2}\sqrt{n}$ menor que $A$. Sin embargo, el retículo $L''$ utilizado en esta sección es muy diferente del retículo $L'$ de la sección anterior.
+
+    La razón principal por la cual el retículo $L$ tiene peor rendimiento que los retículos $L'$ y $L''$, es que contiene muchos vectores cortos en los cuales algunas de las primeras $n$ coordenadas son $-1$. Concluimos de esta forma con la explicación progresiva del artículo de Coster, y procedemos a la descripción del método basado en el retículo $L'$.
+
+    \subsection{Descripción del método}
+
+    En este apartado vamos a describir el método de Coster para romper criptosistemas basados en el problema de la mochila. Como ya sabemos, al igual que en el método de Lagarias-Odlyzko, el objetivo es aplicar una reducción del problema de la mochila al problema de la búsqueda del vector más corto de un retículo, para así poder aplicar el algoritmo L$^{3}$, obteniendo la solución deseada. La diferencia con el método anterior radica en la matriz inicial escogida. A continuación, se muestran los pasos a seguir en este algoritmo mejorado, explicado en la tercera sección del artículo de Coster.
+    
+    \begin{algorithm}[H]
+        \caption{Algoritmo Coster}
+        \textbf{Input:} Clave pública $a = (a_{1}, ... , a_{n})$ y capacidad máxima de la mochila $s$.\\
+        \textbf{Output:} Una solución $b'_{i} = (b'_{i,1}, ... , b'_{i,n+1})$ al problema de la mochila.
+        \bigskip
+        \begin{algorithmic}[1]
+            \State Considerar los siguientes vectores que forman una base $(b_{1}, ... , b_{n+1})$ de un retículo de enteros $L'$ con dimensión $n+1$:
+            \begin{align}
+                b_{1} =& (1, 0, ... , 0, Na_{1}) \\
+                b_{2} =& (0, 1, ... , 0, Na_{2}) \\
+                \vdots&                          \\
+                b_{n} =& (0, 0, ... , 1, Na_{n}) \\
+                b_{n+1} =& (\frac{1}{2}, ..., \frac{1}{2}, Ns)
+            \end{align}
+            donde $N$ es un valor verificando $N > \frac{1}{2}\sqrt{n}$.
+            \State Aplicar el algoritmo L$^{3}$ para encontrar una base reducida $(b'_{1}, ... , b'_{n+1})$.
+            \State Comprobar si algún $b'_{i} = (b'_{i,1}, ... , b'_{i,n+1})$ es solución. En caso afirmativo, finalizar el algoritmo. De lo contrario, continuar.
+            \State Intercambiar los valores $\frac{1}{2}$ por $-\frac{1}{2}$ y viceversa, de la matriz obtenida tras el apartado $(2)$, y volver a aplicar el paso $(3)$. Tras esto, finalizar el algoritmo.
+        \end{algorithmic}
+    \end{algorithm}
+
+    Tras todo el análisis realizado, sabemos que es posible mejorar el límite de densidad de $0.6463...$ a $0.9408...$, modificando un vector de la base del retículo. Consideremos ahora las posibilidad de superar este límite.
+
+    Realmente, resolver problemas de suma de subconjuntos con reducción de base está estrechamente relacionado con problemas de cobertura de retículos. En particular, queremos cubrir los vértices del $n$-cubo (que representa los posibles vectores solución) con un número polinómico de $n$-esferas de radio $\sqrt{\alpha n}$. 
+    
+    Lagarias y Odlyzko demostraron que era posible cubrir el $n$-cubo con dos $n$-esferas de radio $\sqrt{\frac{1}{2}n}$, centradas en $(0, 0, ... , 0)$ y $(1, 1, ... , 1)$. Estas dos $n$-esferas corresponden a los dos problemas de reducción de base que deben resolverse para cualquier problema dado de suma de subconjuntos. Así, el análisis de Coster, utiliza una $n$-esfera de radio $\frac{1}{2} \sqrt{n}$ centrada en $(\frac{1}{2}, \frac{1}{2}, ... , \frac{1}{2})$, para cubrir todos los puntos.
+
+    Una forma de mejorar el límite presentado anteriormente, sería demostrar que es posible cubrir los vértices del $n$-cubo con un número polinómico de $n$-esferas de radio $\sqrt{\alpha n}$, con $\alpha < \frac{1}{4}$. Mostramos a continuación que esto no es posible y que el límite asintótico de $0.9408...$ no puede ser mejorado de esta manera. 
+    
+    La siguiente proposición (cuya demostración obviaremos) muestra que cualquier $n$-esfera de radio $\sqrt{\alpha n}$ con $\alpha < \frac{1}{4}$, puede solamente cubrir una fracción exponencialmente pequeña de los vértices del $n$-cubo. Por lo tanto, ninguna colección polinómica de dichas esferas puede satisfacer nuestros requisitos.
+
+    \begin{proposicion} \cite{artCoster}
+        Cualquier esfera de radio $\sqrt{\alpha n}$ con $\alpha < \frac{1}{4}$ en $\mathbb{R}^{n}$, contiene como máximo $(2-\delta)^{n}$ puntos en $\{0, 1\}^{n}$, para $\delta = \delta(\alpha) > 0$.
+    \end{proposicion}
+
+    A medida que $n$ tiende a infinito, cualquier $n$-esfera de radio $\sqrt{\alpha n}$ con $\alpha < \frac{1}{4}$, contendrá como máximo $(2-\delta(\alpha))^{n}$ puntos en $\{0, 1\}^{n}$. Por tanto, cualquier colección de esferas de tamaño polinómico no puede contener todos los puntos en $\{0, 1\}^{n}$. Como consecuencia, no podemos mejorar el límite asintótico de $0.9408...$ al reducir un número polinómico de bases con $b_{n+1}$ vectores distintos. Sin embargo, para dimensiones pequeñas, podría ser posible mejorar el límite, aunque cualquier ventaja de este tipo desaparecerá a medida que $n$ aumente.
+
+    \section{Resultados Experimentales}
+    
+    A continuación, vamos a analizar los datos obtenidos en un experimento llevado a cabo con el fin de evaluar la relación existente entre el tamaño del mensaje y el resultado del ataque de Coster. Para ello, creamos una función (medirErrores) en la implementación del método de Coster (Coster.ipynb), que obtiene $n$ valores de densidad en el intervalo $(0, 1)$ y genera $10$ criptosistemas de Merkle-Hellman para cada valor.
+
+    De esta forma, si el método de Coster consigue obtener el resultado de Merkle-Hellman para alguno de esos $10$ criptosistemas, marcamos ese punto de la gráfica en color verde. Si por el contrario no lo consigue para ninguno de los $10$ criptosistemas, marcamos ese punto de color rojo. Así obtenemos la siguiente gráfica, donde el eje de abcisas muestra el tamaño de mensaje y el eje de ordenadas muestra la densidad de la clave pública.
+    
+    \input{capitulos/tabla}
+
+    A simple vista, podemos observar cómo para tamaños menores a $40$, el método de Coster consigue obtener todos los mensajes cifrados con Merkle-Hellman, incluso aquellos con densidades cercanas a $1$. Sin embargo, entre los tamaños $40$ y $70$, se evidencia que el método requiere densidades más bajas para poder obtener una solución.
+    
+    Finalmente, es claro que a partir de tamaño $70$, el gráfico se estabiliza en una densidad cercana a $0.52$. No obstante, es interesante saber que, aún no siendo tan apreciable, el metódo sigue necesitando reducir esa densidad hasta $0.497$ para recuperar el mensaje de Merkle-Hellman de tamaño $180$.
+
+\endinput

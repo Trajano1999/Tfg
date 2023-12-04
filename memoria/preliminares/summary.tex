@@ -8,7 +8,81 @@
 \selectlanguage{english}
 \addchap{Summary}
 
-Summary en preliminares/summary.tex
+\textbf{Keywords}: public key cryptosystem, knapsack problem, LLL algorithm, SageMath, and lattice.
+
+\section*{What is cryptography?}
+
+Cryptography (from Ancient Greek kryptós, «secret», and graphein, «to write») is a discipline that deals with information security in communication through insecure channels. Essentially, it seeks to ensure the confidentiality, integrity, and authenticity of information, enabling efficient and secure communication.
+
+These three terms are probably familiar to any reader, but far from being synonymous, they have clearly differentiated meanings. On one hand, the purpose of confidentiality is to ensure that only authorized individuals or entities can access specific and protected information. On the other hand, integrity seeks to protect information from unauthorized alteration, corruption, or destruction. Finally, authenticity aims to ensure that the information comes from a legitimate source and has not been altered during transmission. In this paper, we will discuss some techniques to ensure confidentiality in communications.
+
+When designing a cryptosystem, it is necessary to consider certain desirable attributes in a communications system, such as efficiency and resistance to cryptographic attacks. Obviously, this is not a simple task, and it is precisely this search that motivates this work.
+
+\section*{Brief history of cryptography}
+
+The history of cryptography goes back thousands of years to the earliest civilizations. The oldest known use of cryptography is found in non-standard hieroglyphs carved on Ancient Egyptian monuments more than $4500$ years ago.
+
+In addition, the Hebrew used monoalphabetic substitution ciphers, marking the beginning of symmetric cryptography. The classics, both Greeks and Romans, were knowledgeable about such ciphers, which they used in the military field. For example, the former developed the scytale, while the latter used the Caesar cipher. During the Renaissance in Europe, the cryptanalytic techniques that emerged were not as secure as claimed. Even today, this over-optimism is inherent in cryptography, as it is fundamentally difficult to determine the vulnerability of a system.
+
+It is during World War II when the development of cryptography as a discipline boomed, due to the need to decipher messages transmitted on the battlefield. The Germans created the Enigma machine for this purpose, famous for its decryption difficulty. It was not until $1945$ that the British, led by Alan Turing, managed to break the code of this machine. This event laid the foundations for modern computing.
+
+Until $1976$, the type of encryption used was symmetric, which implies the use of a unique key, both for encrypting and decrypting messages. However, both parties involved need to know the key, and the transmission of the key could lead to potential security vulnerabilities.
+
+Thus, Diffie and Hellman introduced a different encryption method, giving rise to asymmetric cryptography. This method involves generating two keys, a public key and a private key, so that anyone wishing to send a message uses the public key to encrypt it and the private key to decrypt it.
+
+Asymmetric cryptography is based on computationally complex problems, such as the knapsack problem. This problem is just one of several NP-complete problems used in this context.
+
+Next, we proceed to classify asymmetric key or public key cryptosystems according to their methodology:
+\begin{itemize}
+    \item Knapsack-problem-Based
+    \item Lattice-Based
+    \item Code-Based
+    \item Elliptic-Curve-Isogeny-Based
+    \item Hash-Based
+    \item Multivariate-Quadratic-Equations
+\end{itemize}
+
+Nevertheless, the appearance in $1994$ of a quantum algorithm capable of factoring numbers exponentially faster than classical algorithms, generated a new categorization of asymmetric cryptosystems, dividing them into those resistant to quantum attacks and those vulnerable to these attacks. 
+
+Finally, in this work we will focus on analyzing public key cryptosystems, focusing on those based on the knapsack problem, which constitute the title of this project. 
+
+\section*{Main objectives of the work}
+
+The aim of this paper is to provide an introduction to the field of cryptography, starting from the necessary mathematical formalism and ending in a practical implementation of the cryptosystems explained.
+
+We will analyze the theory behind each cryptosystem. In this way, we will see the properties of each one of them, and we will study the algebraic concepts necessary for their understanding. In particular, we will deal with concepts such as modular reduction, orthogonalization and lattices.
+
+On the other hand, several of the cryptosystems explained have been implemented. For this purpose, Python has been used as programming language, together with the support of SageMath libraries. Likewise, we will perform an efficiency analysis of these programs and a comparison that will support the theory studied.
+
+All these objectives have been achieved.
+
+\section*{Description and structure of the work}
+
+First, \autoref{ch:primer-capitulo} will provide the reader with a basic understanding of modern cryptography and how it is applied in the protection of information in computer systems. We also delve into certain cryptosystems, such as AES and RSA, without forgetting historical concepts like the Diffie-Hellman key exchange. Thus, the reader will be able to easily understand everything explained in later chapters.
+
+In \autoref{ch:segundo-capitulo}, we will begin by understanding the seven millennium problems, with the aim of focusing on the P vs NP problem. This development will be aimed at justifying the definition of the NP-Complete problem. Thanks to this definition, we can formally describe the knapsack problem, the basis of the cryptosystems that we will study later.
+
+The \autoref{ch:tercer-capitulo} aspires to become a guide for those who seek to understand the Merkle-Hellman cryptosystem. We will distinguish different methods, and after studying them, we will provide examples that will help to understand them. Additionally, we will explore the applications of this cryptographic tool, although its weaknesses will be revealed in the next chapter.
+
+The \autoref{ch:cuarto-capitulo} is an analysis of the cryptanalysis proposed by Adi Shamir against the cryptosystem presented in the previous chapter. After an extensive description of the theory behind the attack, we will reach the main result that establishes an upper bound for the failure probability, thus breaking the Merkle-Hellman cryptographic system.
+
+In \autoref{ch:quinto-capitulo}, we will study another type of cryptographic attacks: low-density attacks. Among these, we will highlight the Lagarias-Odlyzko attack and the Coster attack. Both will consist of applying a reduction of the knapsack problem to the search for the shortest vector of a lattice. Therefore, it will be necessary to explain the LLL algorithm, which will allow us to find such a vector. The chapter will conclude with an experimental analysis of the obtained data.
+
+Finally, in \autoref{ch:sexto-capitulo}, we will describe the Chor-Rivest cryptosystem, the last one in this work. Its key generation method is entirely different from the studied cryptosystems, since it is based on discrete logarithm calculations in finite fields.
+
+\section*{Main sources consulted}
+
+Among all the bibliographic sources consulted, the following stand out:
+
+\cite{cryptoSchool} has been fundamental for the introduction and the first two chapters.
+
+\cite{artMH} is the main article that has been used for the writing of \autoref{ch:tercer-capitulo}.
+
+Chapter \ref{ch:cuarto-capitulo} is taken almost exclusively from the original article by Shamir, \cite{artSha}.
+
+\cite{artLLL}, \cite{artLagOdl} y \cite{artCoster}, have been used for each of the sections of the \autoref{ch:quinto-capitulo}.
+
+Finally, \autoref{ch:sexto-capitulo} has been written thanks to the references \cite{artChorRivest} y \cite{artQuanChorRivest}.
 
 \selectlanguage{spanish} 
 \endinput

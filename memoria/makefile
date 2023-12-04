@@ -15,4 +15,4 @@ open:
 
 clean:
 	find . -name "*.aux" -type f -delete
-	rm -f $(ARCHIVO).toc $(ARCHIVO).out $(ARCHIVO).lot $(ARCHIVO).log $(ARCHIVO).lof $(ARCHIVO).ind $(ARCHIVO).ilg $(ARCHIVO).fls $(ARCHIVO).fdb_latexmk $(ARCHIVO).brf $(ARCHIVO).blg $(ARCHIVO).bbl $(ARCHIVO).idx $(ARCHIVO).synctex.gz
+	rm -f $(ARCHIVO).toc $(ARCHIVO).out $(ARCHIVO).lot $(ARCHIVO).log $(ARCHIVO).lof $(ARCHIVO).ind $(ARCHIVO).ilg $(ARCHIVO).fls $(ARCHIVO).fdb_latexmk $(ARCHIVO).brf $(ARCHIVO).blg $(ARCHIVO).bbl $(ARCHIVO).idx $(ARCHIVO).synctex.gz data.csv

@@ -8,6 +8,80 @@
 % \markboth{\textsc{Introducción}}{\textsc{Introducción}} 
 \addchap{Introducción}
 
-Introducción en preliminares/introduccion.tex
+\textbf{Palabras clave}: criptosistema de clave pública, problema de la mochila, algoritmo LLL, SageMath y retículo.
+
+\section*{¿Qué es la criptografía?}
+
+La criptografía (del griego kryptós, «secreto», y graphé, «grafo», literalmente «escritura secreta») es una disciplina que se ocupa de la seguridad de la información en la comunicación a través de canales inseguros. En esencia, busca garantizar la confidencialidad, la integridad y la autenticidad de la información, permitiendo una comunicación eficiente y segura.
+
+Probablemente, estos tres términos resulten familiares ante cualquier lector, pero lejos de ser sinónimos, tienen significados claramente diferenciados. Por un lado, la confidencialidad tiene como propósito garantizar que únicamente individuos o entidades autorizadas puedan acceder a cierta información específica y protegida. Por otro lado, la intregridad busca proteger la información ante la alteración, corrupción o destrucción no autorizada. Finalmente, la autenticidad tiene como objetivo asegurar que la información provenga de una fuente legítima y que no haya sido alterada durante la transmisión. En este trabajo trataremos algunas técnicas para garantizar la confidencialidad en las comunicaciones.
+
+A la hora de diseñar un criptosistema, es necesario tener en cuenta ciertos atributos deseables en un sistema de comunicaciones, tales como la eficiencia y la resistencia ante ataques criptográficos. Evidentemente, esto no es una tarea sencilla, y es justamente esta búsqueda la que motiva este trabajo.
+
+\section*{Breve historia de la criptografía}
+
+La historia de la criptografía se remonta miles de años atrás a las primeras civilizaciones. El uso más antiguo conocido de la criptografía se halla en jeroglíficos no estándares tallados en monumentos del Antiguo Egipto de hace más de $4500$ años. 
+
+También, los eruditos hebreos utilizaron cifrados por sustitución monoalfabéticos, marcando así el inicio de la criptografía simétrica. Los clásicos, tanto griegos como romanos, eran conocedores de cifrados de este tipo que utilizaban en el terreno militar. Por ejemplo, los primeros elaboraron la escítala, mientras que los segundos utilizaron el cifrado Cesar. Durante el Renacimiento en Europa, las técnicas criptoanalíticas que surgieron no eran tan seguras como afirmaban. Incluso a día de hoy, este sobre optimismo es algo inherente a la criptografía, ya que es fundamentalmente difícil saber cómo de vulnerable es un sistema.
+
+Es a partir de la Segunda Guerra Mundial, cuando se produce el auge en el desarrollo de la criptografía como disciplina, ante la necesidad de descifrar mensajes transmitidos en el campo de batalla. Los alemanes crearon la maquina Enigma con este fin, famosa por su dificultad de descifrado. No fue hasta $1945$ que los británicos, liderados por Alan Turing, consiguieron romper el código de esta máquina. Este acontecimiento asentó las bases de la computación moderna.
+
+Hasta el año $1976$, el tipo de cifrado utilizado era el simétrico, el cual implica el uso de una clave única tanto para cifrar, como para descifrar el mensaje. Sin embargo, es necesario que ambas partes involucradas conozcan la clave para aplicar este método, y la transmisión de dicha clave puede generar posibles fallos de seguridad. 
+
+Así, Diffie y Hellman introducen un método de cifrado distinto, dando origen a la criptografía asimétrica. Este método consiste en generar dos claves, una pública y una privada, de manera que cualquier individuo que desee enviar un mensaje, utilice la clave pública para cifrarlo, y la privada para descifrarlo.
+
+La criptografía asimétrica se fundamenta en problemas computacionalmente muy complejos, como el problema de la mochila. Este problema es simplemente uno de los diversos problemas NP-completos que se emplean en este contexto.
+
+A continuación, procedemos a clasificar los criptosistemas de clave asimétrica o clave pública según su metodología:
+\begin{itemize}
+    \item Basados en el problema de la mochila
+    \item Basados en retículos
+    \item Basados en códigos
+    \item Basados en curvas elípticas
+    \item Basados en funciones hash
+    \item Basados en ecuaciones cuadráticas multivariantes
+\end{itemize}
+
+Sin embargo, la aparición en $1994$ de un algoritmo cuántico capaz de factorizar números exponencialmente más rápido que los algoritmos clásicos, generó una nueva categorización de los criptosistemas asímetricos, diviendolos en resistentes a ataques cuánticos y vulnerables a estos ataques. 
+
+Finalmente, en este trabajo nos centraremos en analizar los criptosistemas de clave pública, enfocándonos en aquellos basados en el problema de la mochila, que constituyen el título de este proyecto.
+
+\section*{Principales objetivos del trabajo}
+
+El objetivo de este trabajo es ofrecer una introducción al campo de la criptografía, partiendo del formalismo matemático necesario y terminando en una implementación práctica de los criptosistemas explicados.
+
+Analizaremos la teoría detrás de cada criptosistema. De este modo, veremos las propiedades de cada uno de ellos, y estudiaremos los conceptos algebraicos necesarios para su compresión. En particular, abordaremos conceptos como la reducción modular, la ortogonalización y los retículos. 
+
+Por otra parte, han sido implementados varios de los criptosistemas explicados. Para ello, se ha utilizado Python como lenguaje de programación, junto al soporte de las librerías de SageMath. Asimismo, realizaremos un análisis de eficiencia de estos programas y una comparativa que respaldará la teoría estudiada.
+
+Todos estos objetivos han sido satisfechos.
+
+\section*{Descripción y estructura del trabajo}
+
+En primer lugar, el \autoref{ch:primer-capitulo} proporcionará al lector una comprensión básica de la criptografía moderna y de cómo se aplica en la protección de información de sistemas informáticos. También nos adentramos en ciertos criptosistemas, como AES y RSA, sin olvidar conceptos históricos como el intercambio de claves de Diffie-Hellman. Así, el lector podrá entender sin dificultades todo lo explicado en capítulos posteriores.
+
+En el \autoref{ch:segundo-capitulo}, comenzaremos comprendiendo los siete problemas del milenio, con el objetivo de centrarnos en el problema P vs NP. Este desarrollo irá encaminado a justificar la definición de problema NP-Completo. Gracias a esta definición, podremos describir formalmente el problema de la mochila, base de los criptosistemas que veremos más adelante. 
+
+El \autoref{ch:tercer-capitulo} aspira a convertirse en una guía para todos aquellos que buscan comprender el criptosistema de Merkle-Hellman. Distinguiremos los distintos métodos, y tras estudiarlos, aportaremos ejemplos que ayuden a su compresión. Asímismo, veremos las aplicaciones de esta herramienta criptográfica, aunque en el próximo capítulo se revelarán sus debilidades.
+
+El \autoref{ch:cuarto-capitulo} es un análisis del criptoataque propuesto por Adi Shamir al criptosistema presentado en el capítulo anterior. Tras una extensa descripción de la teoría de su ataque, llegaremos al resultado principal que establecerá una cota superior para la probabilidad de fallo, rompiendo así el sistema criptográfico de Merkle-Hellman.
+
+En el \autoref{ch:quinto-capitulo} estudiaremos otro tipo de ataques criptográficos: los ataques por baja densidad. De entre estos, destacaremos el ataque de Lagarias-Odlyzko y el ataque de Coster. Ambos consistirán en aplicar una reducción del problema de la mochila a la búsqueda del vector más corto de un retículo. Por tanto, será necesario explicar el algoritmo LLL, que nos permitirá encontrar dicho vector. El capítulo concluirá con un análisis experimental de los datos obtenidos.
+
+Finalmente, en el \autoref{ch:sexto-capitulo} describiremos el criptosistema de Chor-Rivest, el último de este trabajo. Su método de obtención de claves es completamente distinto de los criptosistemas estudiados, ya que se basa en el cálculo de logaritmos discretos en cuerpos finitos. 
+
+\section*{Principales fuentes consultadas}
+
+De entre todas las fuentes bibliográficas consultadas, destacan las siguientes:
+
+\cite{cryptoSchool} ha sido fundamental para realizar la introducción y los dos primeros capítulos.
+
+\cite{artMH} es el artículo principal que se han usado para la redacción del \autoref{ch:tercer-capitulo}.
+
+El \autoref{ch:cuarto-capitulo} se ha extraido casi exclusivamente del artículo original de Shamir, \cite{artSha}.
+
+\cite{artLLL}, \cite{artLagOdl} y \cite{artCoster}, se han utilizado para cada uno de los apartados del \autoref{ch:quinto-capitulo}.
+
+Por último, el \autoref{ch:sexto-capitulo} ha sido redactado gracias a las referencias \cite{artChorRivest} y \cite{artQuanChorRivest}.
 
 \endinput

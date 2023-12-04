@@ -1,0 +1,138 @@
+\chapter{Problema de la mochila} \label{ch:segundo-capitulo}
+
+    En este capítulo vamos a explicar todos los conceptos necesarios para entender el problema de la mochila, pilar de este trabajo y cuestión que trataremos en capítulos posteriores, ya que será la base del criptosistema en el que nos centraremos. Las principales fuentes bibliográficas han sido \cite{probMil}, \cite{defPM}, \cite{theoryComp} y \cite{MTformal}.
+
+    \section{Los siete problemas del milenio}
+
+    Los problemas del milenio son un conjunto de siete enigmas matemáticos que desafían a los científicos desde su formulación en el año $2000$ por el Clay Mathematics Institute. Se hizo como un llamado a resolver siete de los problemas matemáticos más complejos de toda la historia. Para motivar más esta búsqueda, se anunció además que la resolución de cada uno de estos problemas sería premiada con una suma de un millón de dólares. Hasta el día de hoy, sólo uno de estos problemas ha sido resuelto, la Conjetura de Poincaré. 
+
+    A continuación se enumeran los problemas del milenio acompañados de una breve descripción de cada uno \cite{probMil}:
+
+    \begin{enumerate}
+        \item \textbf{La conjetura de Hodge}:  Es un problema relacionado con la geometría y la topología algebraica. Se centra en entender la estructura de ciertos espacios matemáticos que surgen al estudiar variedades algebraicas y sus propiedades geométricas. Resolver esta conjetura permitiría un mayor entendimiento de la relación entre el álgebra y la geometría.
+        
+        \item \textbf{La conjetura de Poincaré}: Plantea que la esfera cuatridimensional ($3$-esfera) es la única variedad compacta cuatridimensional en la que todo lazo ($1$-esfera) se puede deformar en un punto. Este es el único problema que ha sido resuelto hasta el momento.
+        
+        \item \textbf{La hipótesis de Riemann}: Propone que todos los ceros no triviales de la función zeta de Riemann tienen parte real $\frac{1}{2}$. Resolverla implicaría grandes avances en la estimación de errores en matemática aplicada y distribución de primos en el campo del análisis matemático.
+
+        \item \textbf{Las ecuaciones de Navier-Stokes}: El enunciado del problema es demostrar si a partir de unas condiciones iniciales de fluido laminar, la solución del flujo para todos los instantes de tiempo es también un flujo laminar. Estas ecuaciones en derivadas parciales describen el comportamiento de los fluidos. Su resolución permitiría entender mejor la mecánica de fluidos necesaria para el diseño de aeronaves y embarcaciones, entre otras cosas.
+        
+        \item \textbf{Existencia de Yang-Mills y del salto de masa}: En teoría cuántica de campos, la teoría de Yang-Mills, que generaliza la teoría de Maxwell del campo electromagnético, ha sido utilizada para describir la cromodinámica cuántica, que explica la estructura de los bariones (como son los protones o neutrones) y el grado de estabilidad del núcleo atómico. Aplicando la teoría clásica de campos, aparecen soluciones que describen partículas sin masa. Sin embargo, el fenómeno denominado \textit{confinamiento de carga de color}, unicamente permite estados formados por partículas muy masivas.
+        
+        \item \textbf{La conjetura de Birch y Swinnerton-Dyer}:  Esta conjetura está relacionada con las curvas elípticas. Plantea que existe una forma sencilla de saber al caso si esas ecuaciones tienen un número finito o infinito de soluciones racionales. Resolver esta conjetura tendría implicaciones significativas en la teoría de números y la aritmética algebraica.
+    \end{enumerate}
+
+    El séptimo problema de la lista es el problema \textbf{P vs NP}. Sin duda, este es el problema que más nos incumbe y, por lo tanto, le daremos más atención que a los demás. No obstante, antes de enunciarlo, es necesario realizar algunas definiciones importantes para comprenderlo adecuadamente.
+    
+    \section{Problemas NP-completos}
+
+    La \textit{teoría de la complejidad} \cite{theoryComp} es un subcampo de la informática teórica cuyo objetivo principal es clasificar y comparar la dificultad práctica de resolver problemas sobre objetos combinatorios finitos. En otras palabras, estudia el crecimiento computacional (principalmente en memoria y tiempo) de resolver un determinado problema, en relación a lo que crece el tamaño de dicho problema.
+
+    Imaginemos que queremos ordenar un vector formado por $n$ elementos. Es evidente que a nuestro ordenador le llevará más tiempo ordenar $1000$ números que ordenar $100$. Pero, ¿cuánto tiempo más necesitará? Esta relación es lo que se estudia en teoría de la complejidad. Un punto importante es que el tiempo necesario para ejecutar un programa, dependerá del algoritmo que utilicemos, por lo que debemos definir algún término que permita medir la eficiencia de dicho algoritmo. 
+
+   La \textit{complejidad de un algoritmo} es la relación computacional que describe la cantidad de tiempo necesario para ejecutar dicho algoritmo. Diremos que la \textit{complejidad de un algoritmo} es lineal, o que el \textit{algoritmo se resuelve} en tiempo lineal, cuando la función del tiempo en ejecutar el algoritmo respecto al tamaño del problema sea una función lineal. Puede ocurrir que esta función sea logarítmica, polinómica, o incluso exponencial. Aplicando este concepto, definimos la \textit{complejidad de un problema} como la complejidad del mejor algoritmo que lo resuelve.
+
+    La teoría de la complejidad intenta hacer distinciones entre problemas proponiendo un criterio formal de lo que significa que un problema matemático sea ``NP-completo''. Para entender este concepto de manera precisa, es necesario dar un modelo formal de ordenador.
+
+    Una \textit{máquina de Turing} \cite{MT} es una máquina informática teórica inventada por Alan Turing para servir como un modelo idealizado para el cálculo matemático. Consta de una línea de celdas conocida como \textit{cinta} que se puede mover hacia adelante y hacia atrás, un elemento activo conocido como \textit{cabeza} que posee una propiedad conocida como \textit{estado} y que puede cambiar la propiedad conocida como \textit{color} de la celda activa debajo de ella, y un conjunto de instrucciones sobre cómo la cabeza debe modificar la celda activa y mover la cinta. Tras conocer este nuevo concepto, veamos su definición formal.
+
+    \begin{definicion} \cite{MTformal}
+        Una \textit{máquina de Turing} es un modelo computacional que de manera automática realiza operaciones de lectura y escritura sobre una entrada llamada cinta, generando una salida en esta misma. Definimos una maquina de Turing con una sola cinta como la siguiente $7$-tupla:
+        \begin{equation}
+            M = (\text{Q}, \Sigma, \text{s}, \text{b}, \text{F}, \Gamma, \partial)
+        \end{equation}
+        \begin{itemize}
+            \item Q es un conjunto finito de estados.
+            \item $\Sigma$ es un conjunto finito de símbolos, denominado alfabeto de máquina o de entrada.
+            \item s $\in$ Q es el estado inicial.
+            \item b $\in \Gamma$ es el único símbolo que se puede repetir un número infinito de veces. Se denomina símbolo blanco.
+            \item F $\subseteq$ Q es el conjunto de estados finales de aceptación.
+            \item $\Gamma$ es un estado finito de símbolos de cinta, denominado alfabeto de cinta ($\Sigma \subseteq \Gamma$).
+            \item $\partial$ : Q x $\Gamma$ $\rightarrow$ Q x $\Gamma$ x \{L, R\} es una función parcial denominada función de transición, donde L es el movimiento a la izquierda y R es el movimiento a la derecha.
+        \end{itemize}
+    \end{definicion}
+
+    Inicialmente esta máquina fue definida por Alan Turing como ``máquina automática'' en $1936$. Fue tras su muerte cuando adopto el término usado a día de hoy. La importancia de las máquinas de Turing a lo largo de la historia es doble. En primer lugar, fue uno de los primeros modelos teóricos de las computadoras, ya que puede ser adaptada para simular la lógica de cualquier algoritmo de computación y es particularmente útil en la explicación de las funciones de una CPU dentro de un ordenador. Por otro lado, ha servido de base para un gran desarrollo teórico en ciencas de la computación y teoría de la complejidad. Una vez explicado todo esto, procedemos a dar la definición de un tipo particular de máquina de Turing.
+    
+    \begin{definicion} \cite{MTND}
+        Diremos que una máquina de Turing es \textit{no determinista} si tiene la capacidad de seguir múltiples rutas computacionales de manera simultánea, con la limitación de que estas rutas no pueden comunicarse entre sí.
+    \end{definicion}
+
+    Tras todas estas definiciones, ya tenemos los recursos necesarios para afrontar el problema P vs NP.
+    
+    \begin{definicion} \cite{probNP}
+        Denominamos \textit{NP} al conjunto de problemas que podemos resolver mediante una máquina de Turing no determinista en tiempo polinómico, equivalentemente, son los problemas en los que podemos comprobar en tiempo polinomial si una respuesta es correcta o no.
+    \end{definicion}
+
+    \begin{definicion} \cite{probP}
+        Denominamos \textit{P} al conjunto de problemas de los que se conoce al menos un algoritmo que permite resolver el problema en tiempo polinómico.
+    \end{definicion}
+
+    Está claro que si de un problema conocemos un algoritmo que permite resolverlo en tiempo polinomial, entonces también podemos verificar si una solución es correcta o no en tiempo polinomial, es decir, se puede resolver mediante una máquina de Turing no determinista. Por tanto, sabemos que P~$\subseteq$~NP. Lo que no es tan claro es la inclusión contraria. Esta nos dice que, si podemos comprobar una solución en tiempo polinomial, podemos entonces encontrar una solución en tiempo polinomial. El siguiente ejemplo ilustra cómo, desde una perspectiva intuitiva, parece que P $\neq$ NP. Sin embargo, hasta que alguien resuelva este importante problema, no podremos saber con certeza la respuesta a esta pregunta: ¿Es el conjunto P~=~NP?
+
+    \begin{ejemplo}
+        Supongamos que nos dan un conjunto de números positivos y negativos $A = \{+1, -3, +7, -4, -2, -7, +9, -3, -5, -1. -8\}$, y nos preguntan si podemos obtener el conjunto $X \subseteq A$ tal que la suma de sus valores sea cero. Si nos dan la respuesta $X = \{-3, -4, +7\}$, podemos comprobar facilmente si es solución o no, simplemente sumando los valores de $X$ y viendo si su resultado es igual a cero. Así, $-3-4+7 = 0$, por lo que sí que es solución. No obstante, encontrar ese conjunto de entre todos los posibles no parece una tarea tan sencilla.
+    \end{ejemplo}
+
+    Como definición principal de este apartado, explicamos a continuación el concepto de problema ``NP-completo'', aunque para ello necesitamos una última definición.
+
+    \begin{definicion}
+        Llamamos \textit{reducción} a una transformación en tiempo polinomial, de un problema de decisión en otro equivalente. Esto es, sea $A$ el conjunto de instancias del primer problema, y $B$ el conjunto de instancias del segundo, definimos una reducción $r$ como $r : A \rightarrow B$ tal que $a \in A$ es sí $\iff r(a) \in B$ es sí, y además se realiza en tiempo polinomial.
+    \end{definicion}
+
+    \begin{definicion} \label{def:2.7}
+        Diremos que un problema es \textit{NP-completo} si es un problema de decisión perteneciente a $NP$, que además verifica que existe una reducción de cada problema de $NP$ a él.
+    \end{definicion}
+
+    Los ejemplos de problemas NP-completos incluyen el ``ciclo hamiltoniano'', ``el problema del viajante de comercio'' y ``el problema de la mochila''.
+    
+    \section{Enunciado del problema}
+
+    El problema de la mochila, también conocido como ``Knapsack problem'' en inglés, es un problema del campo de la teoría de algoritmos cuyo problema de decisión asociado es NP-completo. Se trata de un desafío donde se busca la mejor manera de almacenar objetos en una mochila, maximizando el valor total de los elementos llevados, sin exceder la capacidad de carga máxima de la mochila.
+
+    Imaginemos que tenemos una mochila con una capacidad máxima para cargar un cierto peso determinado. Además, disponemos de un conjunto de elementos, cada uno con un peso y un valor asociado. El objetivo es seleccionar qué elementos incluir en la mochila de manera que la suma de los valores sea lo más alta posible, pero sin sobrepasar la capacidad máxima de carga.
+
+    \begin{definicion} \cite{artMH, defPM}  
+        Sean $a = \{ a_{1}, ... , a_{n}\} \subseteq \mathbb{N}^{*}$ un \textit{conjunto de pesos} y S $\in \mathbb{N}^{*}$ la \textit{capacidad total}, el \textit{problema de la mochila} busca encontrar el \textit{vector de soluciones} $x = \{ x_{1}, ... , x_{n} \} \subseteq \mathbb{N}^{*}$ que maximice el valor de la mochila y verifique:
+        \begin{equation} 
+            \sum_{i=1}^{n} a_{i} \cdot x_{i} \leq S 
+        \end{equation}
+    \end{definicion}
+
+    \begin{observacion}
+        En realidad, nosotros nos centraremos calcular la solución del caso específico del problema de la mochila en el que se cumple la condición de igualdad:
+        \begin{equation}
+            \sum_{i=1}^{n} a_{i} \cdot x_{i} = S
+        \end{equation}
+    \end{observacion}
+
+    Veamos un ejemplo que aclare las ideas.
+
+    \begin{ejemplo}
+        Sea $a = (6, 4, 9, 5)$ y la capacidad máxima de la mochila $S = 17$, entonces existe una solución al problema de la mochila dada por $x = (2, 0, 0, 1)$, ya que verifica:
+        \begin{equation} 
+            6 \cdot 2 + 4 \cdot 0 + 9 \cdot 0 + 5 \cdot 1 = 17
+        \end{equation}
+        Pero además, esta solución no es única, porque podemos encontrar otra solución de la forma $x = (0, 2, 1, 0)$, pues:
+        \begin{equation}
+            6 \cdot 0 + 4 \cdot 2 + 9 \cdot 1 + 5 \cdot 0 = 17
+        \end{equation}
+    \end{ejemplo}
+
+    Dado que se cree que P $\neq$ NP, podemos asumir que es un problema computacionalmente difícil de resolver en general, a menos que se tenga acceso a la ``información trampilla'' utilizada en su diseño. Dado que sólo el diseñador puede resolver fácilmente este problema, la idea es que otros usuarios puedan enviarle información oculta en la solución sin temor a que un atacante sea capaz de extraerla.
+
+    Existen diferentes variantes del problema de la mochila, tales como el ejemplo de la mochila de capacidad fraccionaria (donde se pueden tomar porciones de elementos) o la mochila de $0/1$ (donde se pueden o no tomar los elementos completos). Será este último caso, también llamado \textit{problema de la suma de subconjuntos}, el que trataremos más adelante gracias al hecho de que su vector solución está formado por valores binarios. Es decir, el problema de la mochila de $0/1$ es igual al definido previamente, salvo que su solución $x = \{ x_{1}, ... , x_{n} \} \in \{ 0, 1 \}$. Veamos un ejemplo de esta variante:
+
+    \begin{ejemplo} \cite{artMS}
+        Sea $a = (4, 3, 9, 1, 12, 17, 19, 23)$ y la capacidad máxima de la mochila $S = 35$, entonces existe una solución al problema de la mochila y está dada por $x = (0, 1, 0, 1, 1, 0, 1, 0)$, pues se verifica que:
+        \begin{equation} 
+            4 \cdot 0 + 3 \cdot 1 + 9 \cdot 0 + 1 \cdot 1 + 12 \cdot 1 + 17 \cdot 0 + 19 \cdot 1 + 23 \cdot 0 = 35
+        \end{equation}
+        Por el contrario, si la capacidad máxima fuese $S = 6$, el problema no tendría solución.
+    \end{ejemplo}
+
+    A lo largo de los años, se han desarrollado varios algoritmos y enfoques para abordar el problema de la mochila, cada uno con sus ventajas y desventajas. Algunos de estos algoritmos proporcionan soluciones exactas, mientras que otros se enfocan en obtener soluciones aproximadas que puedan ser computadas de manera más eficiente.
+
+    Este problema tiene diversas aplicaciones en la vida real, como la optimización de recursos en logística, el manejo de recursos limitados en la planificación de proyectos o la asignación de tareas con restricciones de recursos, entre otros.
+
+\endinput
