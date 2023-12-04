@@ -23,4 +23,3 @@ Distinguimos la ejecución por carpetas :
     `python Merkle-Hellman_basico.py`
 
     `python Merkle-Hellman_iterativo.py`
-
