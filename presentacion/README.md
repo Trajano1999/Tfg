@@ -1,6 +1,6 @@
-# Memoria del TFG
+# Presentación del TFG
 
-Este directorio contiene el código de la memoria del TFG.
+Este directorio contiene el código de la presentación del TFG.
 
 ## Compilación y Ejecución
 
